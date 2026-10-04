@@ -6,20 +6,16 @@
 // with real queries (or set VITE_API_URL to call a backend). As long as the
 // returned objects keep the same shape, no component needs to change.
 
-import { addDays, addMonths, datesOfMonth, daysInMonth, monthOf, yesterday } from '../lib/dates'
+import { addMonths, datesOfMonth, daysInMonth, monthOf, yesterday } from '../lib/dates'
 import {
   TEMP_CATEGORIES,
   TEMP_CUSTOMERS,
   TEMP_DAILY_CHANNELS,
-  TEMP_DAILY_HISTORY,
-  TEMP_DAILY_LISTINGS,
-  TEMP_EMPLOYEES,
   TEMP_FINANCIAL,
   TEMP_MONTH_CHANNELS,
   TEMP_MONTH_DAILY_REVENUE,
   TEMP_MONTHLY_HISTORY,
   TEMP_PREVIOUS_MONTH,
-  TEMP_PRODUCTION,
   TEMP_SALES,
 } from './placeholderData'
 
@@ -47,18 +43,13 @@ export function availableMonths(count = 24) {
 
 /**
  * Nightly channel breakdown for `date`:
- * { date, channels: [{ id, name, revenue, customers }], history: [{ date, channels }] }
- * where history is the 14 days ending on `date`, oldest first.
+ * { date, channels: [{ id, name, revenue, customers }] }
  */
 export async function fetchDailyReport(date) {
   if (API_URL) return getJSON(`/reports/daily?date=${date}`)
 
-  // TODO(database): replace with queries for `date` and the 13 days before it.
-  const history = TEMP_DAILY_HISTORY.map((row, i) => ({
-    date: addDays(date, i - TEMP_DAILY_HISTORY.length + 1),
-    channels: Object.entries(row).map(([id, values]) => ({ id, ...values })),
-  }))
-  return simulateLatency({ date, channels: TEMP_DAILY_CHANNELS, history })
+  // TODO(database): replace with a query for `date`.
+  return simulateLatency({ date, channels: TEMP_DAILY_CHANNELS })
 }
 
 /**
@@ -89,11 +80,6 @@ export async function fetchMonthlyReport(month) {
       channels: Object.entries(TEMP_MONTH_DAILY_REVENUE[i]).map(([id, revenue]) => ({ id, revenue })),
     })),
     financial: TEMP_FINANCIAL,
-    production: {
-      ...TEMP_PRODUCTION,
-      employees: TEMP_EMPLOYEES,
-      dailyListings: dates.map((date, i) => ({ date, listingsCreated: TEMP_DAILY_LISTINGS[i] })),
-    },
     sales: TEMP_SALES,
     categories: TEMP_CATEGORIES,
     customers: TEMP_CUSTOMERS,
@@ -106,7 +92,6 @@ export async function fetchMonthlyReport(month) {
     daysReported: daysInMonth(previousMonth),
     channels: TEMP_PREVIOUS_MONTH.channels,
     financial: TEMP_PREVIOUS_MONTH.financial,
-    production: { ...TEMP_PREVIOUS_MONTH.production, employees: TEMP_PREVIOUS_MONTH.employees },
     sales: TEMP_PREVIOUS_MONTH.sales,
     categories: [],
     customers: TEMP_PREVIOUS_MONTH.customers,

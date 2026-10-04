@@ -1,4 +1,5 @@
-import { fmt } from '../lib/format'
+import { useState } from 'react'
+import { describeDelta } from '../lib/format'
 
 export function Card({ className = '', children }) {
   return (
@@ -38,23 +39,38 @@ export function SectionHeader({ eyebrow, title, subtitle, children }) {
  * the change is good, and the arrow + text carry it without color.
  */
 export function Delta({ delta, better = 'up', suffix = 'vs prior month' }) {
-  if (!delta || delta.value === null || delta.value === undefined) return null
-  const { kind, value } = delta
-  const flat = Math.abs(value) < (kind === 'score' ? 0.5 : 0.0005)
-  const good = flat ? null : (value > 0) === (better === 'up')
-  const text =
-    kind === 'points'
-      ? `${value >= 0 ? '+' : ''}${(value * 100).toFixed(1)} pts`
-      : kind === 'score'
-        ? `${value >= 0 ? '+' : ''}${Math.round(value)}`
-        : fmt.signedPct(value)
+  const d = describeDelta(delta, better)
+  if (!d) return null
+  const { flat, good, text, arrow } = d
   const tone = flat ? 'text-ink-3' : good ? 'text-good' : 'text-critical'
-  const arrow = flat ? '→' : value > 0 ? '▲' : '▼'
   return (
     <span className={`inline-flex items-center gap-1 text-xs font-semibold ${tone}`}>
       <span aria-hidden="true">{arrow}</span>
       <span className="tabular">{text}</span>
       <span className="font-normal text-ink-3">{suffix}</span>
+    </span>
+  )
+}
+
+/** Compact rounded change pill: blue when good, red when bad, gray when flat. */
+export function DeltaPill({ delta, better = 'up', inverted = false }) {
+  const d = describeDelta(delta, better)
+  if (!d) return null
+  const { flat, good, text, arrow } = d
+  const tone = inverted
+    ? 'bg-white/15 text-white'
+    : flat
+      ? 'bg-black/5 text-ink-3'
+      : good
+        ? 'bg-brand-tint text-brand'
+        : 'bg-critical/10 text-critical'
+  return (
+    <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${tone}`}>
+      <span aria-hidden="true" className="text-[10px]">
+        {arrow}
+      </span>
+      <span className="tabular">{text}</span>
+      {!flat && <span className="sr-only">{good ? '(improved)' : '(worsened)'}</span>}
     </span>
   )
 }
@@ -140,6 +156,31 @@ export function LoadState({ loading, error, children }) {
     <div className={`transition-opacity ${loading ? 'pointer-events-none opacity-50' : ''}`} aria-busy={loading}>
       {children}
     </div>
+  )
+}
+
+/**
+ * Card that collapses to a single clickable header row. `summary` shows under
+ * the title; `actions` (e.g. tabs) appear on the right only while open.
+ */
+export function Disclosure({ title, summary, actions, defaultOpen = false, className = '', children }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <Card className={className}>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+        <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex items-center gap-3 text-left">
+          <span className={`text-brand transition-transform ${open ? 'rotate-90' : ''}`} aria-hidden="true">
+            ▶
+          </span>
+          <span>
+            <span className="block text-base font-bold tracking-tight text-ink">{title}</span>
+            {summary && <span className="block text-sm text-ink-3">{summary}</span>}
+          </span>
+        </button>
+        {open && actions}
+      </div>
+      {open && <div className="border-t border-black/5 bg-page/60 p-5">{children}</div>}
+    </Card>
   )
 }
 

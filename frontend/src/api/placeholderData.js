@@ -21,25 +21,6 @@ export const TEMP_DAILY_CHANNELS = [
   { id: 'ebay', name: 'eBay', revenue: 1800.49, customers: 33 },
 ]
 
-// TODO(database): the 14 days ending on the selected day, oldest first —
-// revenue and customers per marketplace id.
-export const TEMP_DAILY_HISTORY = [
-  { shopgoodwill: { revenue: 4161.71, customers: 93 }, amazon: { revenue: 1701.83, customers: 22 }, ebay: { revenue: 2669.66, customers: 47 } },
-  { shopgoodwill: { revenue: 4415.58, customers: 78 }, amazon: { revenue: 1581.12, customers: 20 }, ebay: { revenue: 2648.15, customers: 40 } },
-  { shopgoodwill: { revenue: 3671.67, customers: 72 }, amazon: { revenue: 1203.33, customers: 16 }, ebay: { revenue: 1786.42, customers: 25 } },
-  { shopgoodwill: { revenue: 3465.99, customers: 65 }, amazon: { revenue: 1158.94, customers: 16 }, ebay: { revenue: 2125.88, customers: 37 } },
-  { shopgoodwill: { revenue: 4007.76, customers: 75 }, amazon: { revenue: 1264.2, customers: 16 }, ebay: { revenue: 1603.96, customers: 26 } },
-  { shopgoodwill: { revenue: 3859.61, customers: 83 }, amazon: { revenue: 1415.82, customers: 16 }, ebay: { revenue: 2258.46, customers: 39 } },
-  { shopgoodwill: { revenue: 4251.18, customers: 82 }, amazon: { revenue: 1407.47, customers: 19 }, ebay: { revenue: 2285.27, customers: 32 } },
-  { shopgoodwill: { revenue: 3900.74, customers: 80 }, amazon: { revenue: 1934.93, customers: 28 }, ebay: { revenue: 2396.1, customers: 36 } },
-  { shopgoodwill: { revenue: 4214.09, customers: 94 }, amazon: { revenue: 1948.41, customers: 25 }, ebay: { revenue: 1888.51, customers: 32 } },
-  { shopgoodwill: { revenue: 4166.3, customers: 85 }, amazon: { revenue: 1168.96, customers: 15 }, ebay: { revenue: 1980.89, customers: 31 } },
-  { shopgoodwill: { revenue: 4470.69, customers: 89 }, amazon: { revenue: 1164.43, customers: 14 }, ebay: { revenue: 2022.91, customers: 29 } },
-  { shopgoodwill: { revenue: 3806.47, customers: 65 }, amazon: { revenue: 1542.45, customers: 19 }, ebay: { revenue: 2197.1, customers: 34 } },
-  { shopgoodwill: { revenue: 4840.45, customers: 91 }, amazon: { revenue: 1350.57, customers: 18 }, ebay: { revenue: 2123.45, customers: 31 } },
-  { shopgoodwill: { revenue: 4071.42, customers: 77 }, amazon: { revenue: 1583.47, customers: 23 }, ebay: { revenue: 1800.49, customers: 33 } },
-]
-
 // ---------------------------------------------------------------------------
 // MONTHLY TAB — selected month
 // ---------------------------------------------------------------------------
@@ -88,45 +69,30 @@ export const TEMP_MONTH_DAILY_REVENUE = [
 ]
 
 // TODO(database): revenue, revenue for the same month last year, cost of goods
-// sold (fees, shipping, supplies), operating expenses (labor + overhead), labor hours.
-export const TEMP_FINANCIAL = { revenue: 227416.05, revenuePriorYear: 176862.66, cogs: 85669.59, operatingExpenses: 70617.61, laborHours: 1301 }
+// sold (marketplace fees, shipping, supplies) and other operating expenses
+// (use 0 if not tracked). Net margin = (revenue - cogs - operatingExpenses) / revenue.
+export const TEMP_FINANCIAL = { revenue: 227416.05, revenuePriorYear: 176862.66, cogs: 85669.59, operatingExpenses: 70617.61 }
 
-// TODO(database): item pipeline and listing productivity for the month.
-export const TEMP_PRODUCTION = { itemsIdentified: 7585, itemsSentToEcommerce: 6501, listingsCreated: 5953, avgMinutesToList: 12.56, avgDaysDonationToListing: 6.69, unlistedBacklog: 581 }
+// TODO(database): units sold and the median sale price for the month.
+export const TEMP_SALES = { unitsSold: 5524, medianSalePrice: 26.95 }
 
-// TODO(database): listings created and revenue from those listings, per employee.
-export const TEMP_EMPLOYEES = [
-  { name: 'K. Davis', listingsCreated: 1287, revenue: 49165.06 },
-  { name: 'A. Patel', listingsCreated: 1380, revenue: 52701.93 },
-  { name: 'J. Miller', listingsCreated: 1147, revenue: 43828.26 },
-  { name: 'R. Lopez', listingsCreated: 1148, revenue: 43839.49 },
-  { name: 'T. Nguyen', listingsCreated: 1071, revenue: 40904.97 },
-]
-
-// TODO(database): listings created on each day of the month (day 1 first).
-export const TEMP_DAILY_LISTINGS = [255, 261, 198, 230, 108, 62, 200, 259, 203, 241, 239, 107, 79, 212, 213, 215, 241, 233, 111, 70, 195, 221, 245, 261, 244, 135, 60, 256, 242, 224, 255]
-
-// TODO(database): itemsAvailable = items listed and available to sell this month;
-// staleListings = active listings older than 60 days; relistedListings = items relisted.
-export const TEMP_SALES = { unitsSold: 5524, itemsAvailable: 8074, medianSalePrice: 26.95, avgDaysToSell: 12.04, activeListings: 3655, staleListings: 349, relistedListings: 992 }
-
-// TODO(database): sales, cost, units sold and items available per category.
+// TODO(database): sales, cost (fees, shipping, supplies) and units sold per category.
 export const TEMP_CATEGORIES = [
-  { name: 'Jewelry & Gemstones', revenue: 37857.46, cost: 9218.8, unitsSold: 509, itemsAvailable: 637 },
-  { name: 'Electronics', revenue: 34597.31, cost: 15331.62, unitsSold: 571, itemsAvailable: 744 },
-  { name: 'Clothing', revenue: 19519.87, cost: 8966.01, unitsSold: 766, itemsAvailable: 1238 },
-  { name: 'Home', revenue: 19318.72, cost: 8439.7, unitsSold: 633, itemsAvailable: 934 },
-  { name: 'Collectibles', revenue: 19917.66, cost: 5875.41, unitsSold: 489, itemsAvailable: 619 },
-  { name: 'Cameras & Photo', revenue: 18058.18, cost: 5886.66, unitsSold: 186, itemsAvailable: 238 },
-  { name: 'Video Games', revenue: 10661.55, cost: 4180.11, unitsSold: 362, itemsAvailable: 445 },
-  { name: 'Books', revenue: 10830.96, cost: 5567.62, unitsSold: 548, itemsAvailable: 948 },
-  { name: 'Toys & Games', revenue: 13435.15, cost: 5801.83, unitsSold: 493, itemsAvailable: 697 },
-  { name: 'Musical Instruments', revenue: 9147.11, cost: 3053.05, unitsSold: 97, itemsAvailable: 146 },
-  { name: 'Art', revenue: 9119.64, cost: 2429.2, unitsSold: 166, itemsAvailable: 299 },
-  { name: 'Handbags & Accessories', revenue: 7226.12, cost: 2482.18, unitsSold: 150, itemsAvailable: 206 },
-  { name: 'Shoes', revenue: 5830.86, cost: 2794.64, unitsSold: 178, itemsAvailable: 301 },
-  { name: 'Sporting Goods', revenue: 6757.56, cost: 3266.86, unitsSold: 173, itemsAvailable: 300 },
-  { name: 'Kitchen', revenue: 5137.91, cost: 2375.9, unitsSold: 203, itemsAvailable: 322 },
+  { name: 'Jewelry & Gemstones', revenue: 37857.46, cost: 9218.8, unitsSold: 509 },
+  { name: 'Electronics', revenue: 34597.31, cost: 15331.62, unitsSold: 571 },
+  { name: 'Clothing', revenue: 19519.87, cost: 8966.01, unitsSold: 766 },
+  { name: 'Home', revenue: 19318.72, cost: 8439.7, unitsSold: 633 },
+  { name: 'Collectibles', revenue: 19917.66, cost: 5875.41, unitsSold: 489 },
+  { name: 'Cameras & Photo', revenue: 18058.18, cost: 5886.66, unitsSold: 186 },
+  { name: 'Video Games', revenue: 10661.55, cost: 4180.11, unitsSold: 362 },
+  { name: 'Books', revenue: 10830.96, cost: 5567.62, unitsSold: 548 },
+  { name: 'Toys & Games', revenue: 13435.15, cost: 5801.83, unitsSold: 493 },
+  { name: 'Musical Instruments', revenue: 9147.11, cost: 3053.05, unitsSold: 97 },
+  { name: 'Art', revenue: 9119.64, cost: 2429.2, unitsSold: 166 },
+  { name: 'Handbags & Accessories', revenue: 7226.12, cost: 2482.18, unitsSold: 150 },
+  { name: 'Shoes', revenue: 5830.86, cost: 2794.64, unitsSold: 178 },
+  { name: 'Sporting Goods', revenue: 6757.56, cost: 3266.86, unitsSold: 173 },
+  { name: 'Kitchen', revenue: 5137.91, cost: 2375.9, unitsSold: 203 },
 ]
 
 // TODO(database): unique buyers split into first-time and repeat; satisfaction
@@ -144,16 +110,8 @@ export const TEMP_PREVIOUS_MONTH = {
     { id: 'amazon', name: 'Amazon', revenue: 44934.63, orders: 626, customers: 572, sessions: 6623 },
     { id: 'ebay', name: 'eBay', revenue: 59140.39, orders: 1046, customers: 952, sessions: 22249 },
   ],
-  financial: { revenue: 224188.9, revenuePriorYear: 179347.32, cogs: 88856.46, operatingExpenses: 72629.02, laborHours: 1389 },
-  production: { itemsIdentified: 7768, itemsSentToEcommerce: 6722, listingsCreated: 6105, avgMinutesToList: 12.01, avgDaysDonationToListing: 6.14, unlistedBacklog: 717 },
-  employees: [
-    { name: 'K. Davis', listingsCreated: 1466, revenue: 53832.51 },
-    { name: 'A. Patel', listingsCreated: 1285, revenue: 47170.08 },
-    { name: 'J. Miller', listingsCreated: 1292, revenue: 47460.67 },
-    { name: 'R. Lopez', listingsCreated: 1119, revenue: 41106.11 },
-    { name: 'T. Nguyen', listingsCreated: 962, revenue: 35317.37 },
-  ],
-  sales: { unitsSold: 5833, itemsAvailable: 8743, medianSalePrice: 25.41, avgDaysToSell: 10.78, activeListings: 4077, staleListings: 410, relistedListings: 1008 },
+  financial: { revenue: 224188.9, revenuePriorYear: 179347.32, cogs: 88856.46, operatingExpenses: 72629.02 },
+  sales: { unitsSold: 5833, medianSalePrice: 25.41 },
   customers: { buyers: 3357, repeatBuyers: 1055, newBuyers: 2302, satisfaction: 4.7, nps: 46 },
 }
 

@@ -23,6 +23,21 @@ body {
   @apply bg-page text-ink font-sans antialiased;
 }
 
+/* Everything inside is ~12% larger (text) and ~10% roomier (spacing). Tailwind
+   sizes text and spacing through these variables, so overriding them here
+   scales the whole subtree. Used on the monthly page. */
+.scale-up {
+  --text-xs: 0.84rem;
+  --text-sm: 0.98rem;
+  --text-base: 1.12rem;
+  --text-lg: 1.26rem;
+  --text-xl: 1.4rem;
+  --text-2xl: 1.68rem;
+  --text-3xl: 2.1rem;
+  --text-4xl: 2.52rem;
+  --spacing: 0.275rem;
+}
+
 .tabular {
   font-variant-numeric: tabular-nums;
 }

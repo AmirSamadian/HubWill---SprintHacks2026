@@ -41,7 +41,7 @@ export function HBar({ data, dataKey, nameKey = 'name', format, label, colorKey,
           type="category"
           dataKey={nameKey}
           {...AXIS}
-          tick={{ fill: '#374151', fontSize: 12 }}
+          tick={{ fill: '#374151', fontSize: 14 }}
           width={labelWidth}
           interval={0}
         />
@@ -53,7 +53,7 @@ export function HBar({ data, dataKey, nameKey = 'name', format, label, colorKey,
             position="right"
             formatter={labelKey ? undefined : format}
             fill="#111111"
-            fontSize={11}
+            fontSize={13}
           />
         </Bar>
       </BarChart>
@@ -62,7 +62,7 @@ export function HBar({ data, dataKey, nameKey = 'name', format, label, colorKey,
 }
 
 /** Height for an HBar so each row gets enough room. */
-export const hbarHeight = (rows) => Math.max(120, rows * 30)
+export const hbarHeight = (rows) => Math.max(130, rows * 34)
 
 /**
  * A single 100% bar split into labeled segments, with a legend that carries

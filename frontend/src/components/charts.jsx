@@ -9,6 +9,8 @@ export const AXIS = {
   tickLine: false,
   axisLine: false,
 }
+// Larger axis text for charts inside a .scale-up page.
+export const AXIS_LG = { ...AXIS, tick: { ...AXIS.tick, fontSize: 13 } }
 export const SURFACE = '#ffffff'
 export const CURSOR = { fill: 'rgba(0,83,160,0.06)' }
 

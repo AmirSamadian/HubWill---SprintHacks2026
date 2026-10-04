@@ -1,6 +1,6 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { AXIS, ChartCard, ChartTooltip, CURSOR, GRID, SURFACE } from '../../components/charts'
-import { Card, SectionHeader } from '../../components/ui'
+import { AXIS_LG, ChartCard, ChartTooltip, CURSOR, GRID, SURFACE } from '../../components/charts'
+import { Card } from '../../components/ui'
 import { resolveChannels, SEGMENT_COLORS } from '../../config/channels'
 import { formatMonth, formatMonthShort } from '../../lib/dates'
 import { fmt } from '../../lib/format'
@@ -28,15 +28,11 @@ export default function CustomerSection({ report, previous, history }) {
 
   return (
     <section>
-      <SectionHeader
-        eyebrow="KPI Framework · Customer & Marketplace"
-        title="Customers & retention"
-        subtitle="Who is buying, whether they come back, and how each marketplace converts."
-      />
       <KpiTiles
         report={report}
         previous={previous}
-        ids={['buyers', 'newBuyers', 'repeatBuyerRate', 'satisfaction', 'nps', 'conversionRate']}
+        cols="sm:grid-cols-2 lg:grid-cols-5"
+        ids={['buyers', 'newBuyers', 'satisfaction', 'nps', 'conversionRate']}
       />
 
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
@@ -59,8 +55,8 @@ export default function CustomerSection({ report, previous, history }) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={retention} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
               <CartesianGrid {...GRID} />
-              <XAxis dataKey="month" {...AXIS} tickFormatter={formatMonthShort} />
-              <YAxis {...AXIS} tickFormatter={fmt.compact} width={44} />
+              <XAxis dataKey="month" {...AXIS_LG} tickFormatter={formatMonthShort} />
+              <YAxis {...AXIS_LG} tickFormatter={fmt.compact} width={52} />
               <Tooltip
                 cursor={CURSOR}
                 content={

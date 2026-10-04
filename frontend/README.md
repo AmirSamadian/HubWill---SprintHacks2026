@@ -11,7 +11,18 @@ npm run dev
 ## Tabs
 
 - **Daily Report**: the nightly channel breakdown. Shows revenue and customers per marketplace plus the Total E-Commerce row, charts comparing marketplaces, and a 14-day trend. Pick the day with the date picker or the ← → buttons.
-- **Monthly Analytics**: pick a month/year from the dropdown. Shows the 15-KPI COO scorecard, followed by sections for Financial, Listing & Production, Sales Effectiveness, Category Performance (top 10 by revenue and by margin, plus a sortable table) and Customers & Retention (first-time vs. repeat buyers).
+- **Monthly Analytics**: pick a month/year from the dropdown or step through months with ← →. The top of the page is the COO scorecard:
+  - financial headline (revenue, YoY growth, net margin)
+  - **watch list** of metrics that moved the wrong way
+  - revenue by marketplace
+  - sales effectiveness
+  - top 10 categories by revenue and margin, plus repeat buyer rate
+
+  A tabbed "Detailed performance" card holds the supporting charts (Financial, Categories, Customers).
+
+  Labor and inventory metrics are intentionally left out because that data isn't available.
+
+The watch list rules live in [`src/lib/watchlist.js`](src/lib/watchlist.js) as plain data (`watchItems(report, previous)`), so a future written report can reuse them.
 
 Every chart has a **Table** toggle that shows the underlying numbers.
 

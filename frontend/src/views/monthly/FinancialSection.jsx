@@ -1,17 +1,14 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { AXIS, ChartCard, ChartTooltip, CURSOR, GRID, SURFACE } from '../../components/charts'
-import { SectionHeader } from '../../components/ui'
+import { AXIS_LG, ChartCard, ChartTooltip, CURSOR, GRID, SURFACE } from '../../components/charts'
 import { ACCENT, resolveChannels } from '../../config/channels'
 import { formatLongDate, formatMonth, formatMonthShort, formatShortDate, parseISODate } from '../../lib/dates'
 import { change, fmt } from '../../lib/format'
-import { hbarHeight, HBar, KpiTiles } from './shared'
+import { KpiTiles } from './shared'
 
 const PRIOR_YEAR = '#a3acb9'
 
 export default function FinancialSection({ report, previous, history }) {
   const channels = resolveChannels(report.channels)
-  const byId = new Map(report.channels.map((c) => [c.id, c]))
-  const mix = channels.map((c) => ({ ...c, revenue: byId.get(c.id)?.revenue ?? 0 }))
 
   const daily = report.daily.map((d) => {
     const point = { date: d.date }
@@ -23,21 +20,9 @@ export default function FinancialSection({ report, previous, history }) {
 
   return (
     <section>
-      <SectionHeader
-        eyebrow="KPI Framework · Profitability"
-        title="Financial performance"
-        subtitle="Economic performance and the labor productivity required to sustain it."
-      />
-      <KpiTiles
-        report={report}
-        previous={previous}
-        emphasis={['revenue']}
-        ids={['revenue', 'revenueGrowthYoY', 'grossMarginPct', 'netMarginPct', 'revenuePerLaborHour', 'profitPerLaborHour']}
-      />
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-5">
+      <div className="grid items-start gap-5 lg:grid-cols-[240px_1fr]">
+        <KpiTiles report={report} previous={previous} cols="" ids={['grossMarginPct']} />
         <ChartCard
-          className="lg:col-span-3"
           title="Revenue vs. same month last year"
           subtitle={report.isPartial ? 'Each month compared over the same number of days as the month to date.' : 'Trailing 12 months.'}
           legend={[
@@ -57,8 +42,8 @@ export default function FinancialSection({ report, previous, history }) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={yoy} margin={{ top: 4, right: 4, left: 4, bottom: 0 }} barGap={2}>
               <CartesianGrid {...GRID} />
-              <XAxis dataKey="month" {...AXIS} tickFormatter={formatMonthShort} />
-              <YAxis {...AXIS} tickFormatter={fmt.currencyCompact} width={56} />
+              <XAxis dataKey="month" {...AXIS_LG} tickFormatter={formatMonthShort} />
+              <YAxis {...AXIS_LG} tickFormatter={fmt.currencyCompact} width={66} />
               <Tooltip
                 cursor={CURSOR}
                 content={
@@ -72,23 +57,6 @@ export default function FinancialSection({ report, previous, history }) {
               <Bar dataKey="revenue" name="This year" fill={ACCENT} radius={[4, 4, 0, 0]} maxBarSize={18} />
             </BarChart>
           </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard
-          className="lg:col-span-2"
-          title="Revenue mix by marketplace"
-          subtitle={formatMonth(report.month)}
-          height={hbarHeight(mix.length) + 100}
-          table={{
-            columns: [
-              { key: 'name', label: 'Marketplace' },
-              { key: 'revenue', label: 'Revenue', format: fmt.currency },
-              { key: 'share', label: 'Share', format: fmt.pct },
-            ],
-            rows: mix.map((m) => ({ ...m, share: m.revenue / report.financial.revenue })),
-          }}
-        >
-          <HBar data={mix} dataKey="revenue" label="Revenue" format={fmt.currencyCompact} colorKey="color" labelWidth={100} />
         </ChartCard>
       </div>
 
@@ -108,8 +76,8 @@ export default function FinancialSection({ report, previous, history }) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={daily} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
             <CartesianGrid {...GRID} />
-            <XAxis dataKey="date" {...AXIS} tickFormatter={(d) => parseISODate(d).getDate()} interval={0} />
-            <YAxis {...AXIS} tickFormatter={fmt.currencyCompact} width={56} />
+            <XAxis dataKey="date" {...AXIS_LG} tickFormatter={(d) => parseISODate(d).getDate()} interval={0} />
+            <YAxis {...AXIS_LG} tickFormatter={fmt.currencyCompact} width={66} />
             <Tooltip cursor={CURSOR} content={<ChartTooltip labelFormatter={formatLongDate} valueFormatter={fmt.currency} showTotal />} />
             {channels.map((c, i) => (
               <Bar

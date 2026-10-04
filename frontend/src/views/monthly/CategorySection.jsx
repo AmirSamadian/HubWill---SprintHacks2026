@@ -1,9 +1,7 @@
 import { useState } from 'react'
-import { ChartCard } from '../../components/charts'
-import { Panel, SectionHeader } from '../../components/ui'
+import { Panel } from '../../components/ui'
 import { fmt } from '../../lib/format'
-import { categoryRows, topCategories } from '../../lib/kpis'
-import { hbarHeight, HBar } from './shared'
+import { categoryRows } from '../../lib/kpis'
 
 const COLUMNS = [
   { key: 'name', label: 'Category' },
@@ -11,43 +9,15 @@ const COLUMNS = [
   { key: 'margin', label: 'Margin', format: fmt.currency },
   { key: 'marginPct', label: 'Margin %', format: fmt.pct },
   { key: 'unitsSold', label: 'Units sold', format: fmt.number },
-  { key: 'sellThrough', label: 'Sell-through', format: fmt.pct },
   { key: 'asp', label: 'ASP', format: fmt.currencyCents },
 ]
 
 export default function CategorySection({ report }) {
-  const byRevenue = topCategories(report, 'revenue')
-  const byMargin = topCategories(report, 'margin')
-
   return (
-    <section id="categories" className="scroll-mt-6">
-      <SectionHeader
-        eyebrow="KPI Framework · Category Performance"
-        title="Category performance"
-        subtitle="Category economics explain what is driving the headline results."
-      />
-      <div className="grid gap-5 lg:grid-cols-2">
-        <ChartCard
-          title="Top 10 categories by revenue"
-          height={hbarHeight(10)}
-          table={{ columns: COLUMNS.slice(0, 2), rows: byRevenue }}
-        >
-          <HBar data={byRevenue} dataKey="revenue" label="Sales" format={fmt.currencyCompact} labelWidth={160} />
-        </ChartCard>
-        <ChartCard
-          title="Top 10 categories by margin"
-          subtitle="Gross margin dollars"
-          height={hbarHeight(10)}
-          table={{ columns: [COLUMNS[0], COLUMNS[2], COLUMNS[3]], rows: byMargin }}
-        >
-          <HBar data={byMargin} dataKey="margin" label="Margin" format={fmt.currencyCompact} labelWidth={160} />
-        </ChartCard>
-      </div>
-
-      <Panel eyebrow="All categories" className="mt-5">
-        <CategoryTable rows={categoryRows(report)} />
-      </Panel>
-    </section>
+    <Panel eyebrow="All categories">
+      <p className="-mt-2 mb-4 text-sm text-ink-3">Click a column heading to sort.</p>
+      <CategoryTable rows={categoryRows(report)} />
+    </Panel>
   )
 }
 

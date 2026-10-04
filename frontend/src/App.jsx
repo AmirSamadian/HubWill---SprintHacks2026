@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import ChatPanel from './components/ChatPanel'
 import { Tabs } from './components/ui'
 import DailyView from './views/DailyView'
 import MonthlyView from './views/MonthlyView'
@@ -48,6 +49,8 @@ export default function App() {
       <main role="tabpanel" className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-8">
         {tab === 'daily' ? <DailyView /> : <MonthlyView />}
       </main>
+
+      <ChatPanel />
     </>
   )
 }

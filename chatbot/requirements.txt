@@ -1,0 +1,5 @@
+# Chatbot service: HTTP API, Claude SDK, and PostgreSQL driver.
+fastapi>=0.115,<1.0
+uvicorn>=0.30,<1.0
+anthropic>=1.11,<2.0
+psycopg[binary]>=3.2,<4.0

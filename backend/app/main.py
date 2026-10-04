@@ -12,7 +12,8 @@ from . import config
 from .dashboard import ReportData, ReportError, daily_report, monthly_history, monthly_report, to_json
 from .demo_delivery import send_to_demo_server
 from .delivery_history import DeliveryHistory
-from .email_models import DemoDeliveryResult, MonthlyEmailPreview, RecipientSettings
+from .email_models import DemoDeliveryResult, EmailDeliveryResult, MonthlyEmailPreview, RecipientSettings, SendEmailRequest
+from .smtp_delivery import EmailConfigurationError, EmailDeliveryError, send_via_smtp
 from .models import DashboardReport, Period
 from .monthly_email import build_email_preview
 from .recipient_store import recipient_store, state_directory
@@ -148,8 +149,25 @@ def send_monthly_demo(date: dt.date = Query(description="A date within the month
 
 
 @app.get("/api/email/schedule/history", tags=["Monthly email"])
-def scheduled_delivery_history() -> list[dict[str, str]]:
+def scheduled_delivery_history(delivery: str = Query("demo", pattern="^(demo|smtp)$")) -> list[dict[str, str]]:
     try:
-        return DeliveryHistory(state_directory).entries()
+        directory = state_directory / "smtp" if delivery == "smtp" else state_directory
+        return DeliveryHistory(directory).entries()
     except Exception as error:
         raise HTTPException(status_code=500, detail="Scheduled email history could not be read.") from error
+
+
+@app.post("/api/email/monthly/send", response_model=EmailDeliveryResult, tags=["Monthly email"])
+def send_monthly_email(
+    request: SendEmailRequest,
+    date: dt.date = Query(description="A date within the month to send."),
+) -> EmailDeliveryResult:
+    # Runtime addresses are not persisted and do not change the scheduler's list.
+    preview = build_email_preview(dashboard(period=Period.month, date=date), request)
+    try:
+        send_via_smtp(preview)
+    except EmailConfigurationError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from None
+    except EmailDeliveryError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from None
+    return EmailDeliveryResult(recipients=preview.recipients, subject=preview.subject)

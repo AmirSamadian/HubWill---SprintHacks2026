@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 from .delivery_history import DeliveryHistory
 from .demo_delivery import send_to_demo_server
+from .smtp_delivery import EmailDeliveryError, SmtpSettings, send_via_smtp
 from .email_models import MonthlyEmailPreview
 from .models import Period
 from .monthly_email import build_email_preview
@@ -36,7 +37,10 @@ def run_due_report(
     now: dt.datetime, orders: OrderRepository, recipients: RecipientStore,
     history: DeliveryHistory,
     deliver: Callable[[MonthlyEmailPreview], None] = send_to_demo_server,
+    delivery_mode: str = "demo",
 ) -> dict[str, str | None]:
+    if delivery_mode not in {"demo", "smtp"}:
+        raise ValueError("Delivery mode must be demo or smtp.")
     month_start = due_month(now)
     if month_start is None:
         return {"report_month": None, "status": "not_due", "detail": "Next check is after 8 a.m. Eastern on the first."}
@@ -53,26 +57,36 @@ def run_due_report(
         deliver(preview)
     except ConnectionRefusedError:
         # No SMTP connection was established, so retrying cannot duplicate a capture.
-        history.finish(month, "retryable", "Start the local SMTP server; the next check will retry.")
-    except (OSError, smtplib.SMTPException):
+        history.finish(month, "retryable", "SMTP connection refused; the next check will retry.")
+    except (OSError, smtplib.SMTPException, EmailDeliveryError):
         # A timeout/disconnect may occur after acceptance. Do not blindly resend.
-        history.finish(month, "needs_review", "SMTP delivery was interrupted; inspect captures before retrying.")
+        history.finish(month, "needs_review", "SMTP delivery failed or is uncertain; check delivery before retrying.")
     else:
-        history.finish(month, "captured_locally", "Scheduled email captured locally; no real inbox delivery.")
+        if delivery_mode == "smtp":
+            history.finish(month, "accepted_by_smtp", "SMTP accepted the scheduled report; inbox delivery is not guaranteed.")
+        else:
+            history.finish(month, "captured_locally", "Scheduled email captured locally; no real inbox delivery.")
     return history.get(month)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Schedule monthly reports to the local dummy SMTP server.")
     parser.add_argument("--once", action="store_true", help="Check the real current time once and exit.")
+    parser.add_argument("--delivery", choices=["demo", "smtp"], default="demo", help="smtp sends real email; demo captures locally.")
     args = parser.parse_args()
-    history = DeliveryHistory(state_directory)
+    # A demo capture must not suppress real delivery for the same month.
+    history = DeliveryHistory(state_directory / "smtp" if args.delivery == "smtp" else state_directory)
+    deliver = send_to_demo_server
+    if args.delivery == "smtp":
+        SmtpSettings.from_environment()  # Validate before claiming a report month.
+        deliver = send_via_smtp
     previous_result = None
     stopped = threading.Event()
     try:
         while True:
             try:
-                result = run_due_report(dt.datetime.now(dt.timezone.utc), repository, recipient_store, history)
+                result = run_due_report(dt.datetime.now(dt.timezone.utc), repository, recipient_store, history,
+                                        deliver, delivery_mode=args.delivery)
             except Exception as error:
                 # Keep failures visible without terminating an unattended local demo.
                 # Only report the exception type, avoiding raw private settings in logs.

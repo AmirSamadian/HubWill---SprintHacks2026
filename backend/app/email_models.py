@@ -1,4 +1,4 @@
-"""Recipient input and preview output; actual email delivery comes later."""
+"""Validated runtime recipients, previews, and delivery results."""
 
 import re
 from datetime import date
@@ -45,3 +45,15 @@ class DemoDeliveryResult(BaseModel):
     recipients: list[EmailStr]
     subject: str
     notice: str = "Email captured by the local dummy server; no real inbox delivery."
+
+
+class SendEmailRequest(RecipientSettings):
+    # Manual delivery uses this request, never a stale saved recipient list.
+    recipients: list[EmailStr] = Field(min_length=1, max_length=50)
+
+
+class EmailDeliveryResult(BaseModel):
+    delivery_status: str = "accepted_by_smtp"
+    recipients: list[EmailStr]
+    subject: str
+    notice: str = "The SMTP server accepted the message; inbox delivery is not guaranteed."

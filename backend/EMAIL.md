@@ -1,5 +1,60 @@
 # Monthly email feature
 
+## Real Gmail delivery
+
+Configure these privately in the git-ignored **root** `.env`, alongside the
+existing database settings. Do not replace the PG settings or commit this file.
+The application explicitly loads root `.env` through `app.config`.
+
+```dotenv
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURITY=starttls
+SMTP_FROM=your-sender@gmail.com
+SMTP_USERNAME=your-sender@gmail.com
+SMTP_PASSWORD=your-app-password
+```
+
+Create an app password with Google 2-Step Verification enabled:
+<https://support.google.com/accounts/answer/185833>. Account restrictions may
+prevent app passwords. Enter the generated password privately, not a normal
+Google password. Gmail SMTP settings:
+<https://support.google.com/mail/answer/7104828>.
+
+Restart the API after changing environment configuration. In `/docs`, use
+`POST /api/email/monthly/send`, choose the month with its `date` query, and
+submit runtime recipients:
+
+```json
+{"recipients": ["recipient@example.com", "another@example.com"]}
+```
+
+Comma, semicolon, and newline-separated strings are also accepted. An empty
+or invalid list fails validation. This endpoint sends real mail immediately;
+manual requests are separate sends and do not update saved recipients. The
+response `accepted_by_smtp` means server acceptance, not guaranteed inbox
+delivery. Provider failures and partial refusal require checking delivery
+before retrying. Addresses are envelope recipients and hidden from one another.
+Keep this unauthenticated local demo API bound to `127.0.0.1`.
+
+For monthly automatic real delivery, first set the saved runtime recipient
+list with `PUT /api/email/recipients`. This is necessary because no user is
+present to type addresses when the scheduled time arrives. Then run:
+
+```powershell
+.\.venv\Scripts\python.exe -m app.scheduler --delivery smtp
+```
+
+Starting this scheduler after the first day catches up the latest completed
+month and can send immediately. It runs at 8 AM Eastern on the first of each
+month and uses a separate ledger under `backend/local-state/smtp`. Real
+history is available at `/api/email/schedule/history?delivery=smtp`.
+Uncertain sends are marked `needs_review` rather than automatically repeated.
+The computer and scheduler must remain running. `--delivery demo` remains the
+default local capture mode.
+
+Validation uses mocked SMTP, never real credentials or external delivery.
+
 The email renderer in `app/monthly_email.py` takes the shared monthly
 `DashboardReport` and recipient settings. It formats values without querying
 the database or duplicating dashboard calculations. Preview, manual delivery

@@ -83,3 +83,13 @@ class SchedulerTests(unittest.TestCase):
                 lambda _: DeliveryHistory(self.directory).claim("2026-09"), range(2)
             ))
         self.assertEqual(sorted(results), [False, True])
+
+    def test_real_delivery_records_acceptance_and_avoids_duplicate(self):
+        history = DeliveryHistory(self.directory / "smtp")
+        sent = []
+        for _ in range(2):
+            result = run_due_report(self.now, MockOrderRepository(), self.recipients,
+                                    history, sent.append, delivery_mode="smtp")
+            self.assertEqual(result["status"], "accepted_by_smtp")
+        self.assertEqual(len(sent), 1)
+        self.assertEqual(self.history.entries(), [])

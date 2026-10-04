@@ -158,6 +158,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env.*
+!.env.example
 
 # Spyder project settings
 .spyderproject
@@ -221,3 +223,6 @@ __marimo__/
 
 # Ingestion archive: untouched copies of ingested source files (see ingestion/README.md)
 ingestion/archive/
+
+# Local recipient addresses and future report delivery history.
+/backend/local-state/

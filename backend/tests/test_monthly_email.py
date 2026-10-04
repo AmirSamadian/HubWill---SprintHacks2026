@@ -46,8 +46,8 @@ class MonthlyEmailTests(unittest.TestCase):
         preview = build_email_preview(report, RecipientSettings())
         self.assertIn("September 2026 [DEMO]", preview.subject)
         self.assertIn("Total item revenue: $400.00", preview.text_body)
-        self.assertIn("Returning buyer rate: 50.00%", preview.text_body)
-        self.assertIn("eBay buyer information only", preview.text_body)
+        self.assertIn("eBay returning buyer rate: 50.00%", preview.text_body)
+        self.assertIn("Retention covers eBay only", preview.text_body)
         self.assertEqual(preview.delivery_status, "preview_only")
 
     def test_other_vendors_are_combined_in_email_and_html_is_escaped(self):
@@ -66,3 +66,48 @@ class MonthlyEmailTests(unittest.TestCase):
         report = build_report(Period.day, date(2026, 9, 1), MockOrderRepository())
         with self.assertRaises(ValueError):
             build_email_preview(report, RecipientSettings())
+
+    def test_missing_buyer_data_and_zero_baseline_are_not_reported_as_zero_rates(self):
+        report = build_report(Period.month, date(2026, 9, 1), MockOrderRepository(()))
+        report.ebay_buyers = None
+        preview = build_email_preview(report, RecipientSettings())
+        self.assertIn("month-over-month revenue comparison is unavailable", preview.text_body)
+        self.assertIn("buyer information is unavailable", preview.text_body)
+        self.assertIn("buyer information is unavailable", preview.html_body)
+        self.assertNotIn("Returning buyer rate: 0.00%", preview.text_body)
+
+    def test_email_shows_reporting_dates_and_one_marketplace_table(self):
+        report = build_report(Period.month, date(2026, 9, 1), MockOrderRepository())
+        preview = build_email_preview(report, RecipientSettings())
+        self.assertIn("2026-09-01 through 2026-09-30 (America/New_York)", preview.text_body)
+        self.assertEqual(preview.html_body.count("<div style=\"margin-top:7px\">"), 4)
+        self.assertIn("Revenue was up 100.00%", preview.text_body)
+        self.assertIn("previous calendar month ($200.00)", preview.text_body)
+
+    def test_lengthy_definitions_are_omitted_but_limitations_remain(self):
+        report = build_report(Period.month, date(2026, 9, 1), MockOrderRepository())
+        report.revenue_definition = '<img src=x onerror="alert(1)">'
+        report.unavailable_metrics = ["<script>bad()</script>"]
+        preview = build_email_preview(report, RecipientSettings())
+        self.assertNotIn("<img", preview.html_body)
+        self.assertNotIn("<script>", preview.html_body)
+        self.assertIn("does not assess overall profitability", preview.html_body)
+
+    def test_decline_and_tied_marketplaces_are_described_honestly(self):
+        repository = MockOrderRepository((
+            mock_order("1", "amazon", "2026-08-01", "200"),
+            mock_order("2", "amazon", "2026-09-01", "50"),
+            mock_order("3", "ebay", "2026-09-01", "50"),
+        ))
+        preview = build_email_preview(build_report(Period.month, date(2026, 9, 1), repository), RecipientSettings())
+        self.assertIn("Revenue was down 50.00%", preview.text_body)
+        self.assertIn("Amazon and eBay tied for the lead", preview.text_body)
+        self.assertLess(len(preview.text_body.split()), 250)
+
+    def test_negative_revenue_does_not_make_negative_chart_widths(self):
+        report = build_report(Period.month, date(2026, 9, 1), MockOrderRepository(()))
+        report.marketplaces[0].revenue = -10
+        preview = build_email_preview(report, RecipientSettings())
+        self.assertIn("$-10.00", preview.html_body)
+        self.assertNotIn('width="-', preview.html_body)
+        self.assertNotIn("led in revenue", preview.text_body)

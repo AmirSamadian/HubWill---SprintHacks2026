@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+
+/* Goodwill brand tokens: Goodwill blue on clean white, black ink. */
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-page: #f5f7fa; /* page background */
+  --color-surface: #ffffff; /* cards and chart surface */
+
+  --color-brand: #0053a0; /* Goodwill blue */
+  --color-brand-dark: #003f7a;
+  --color-brand-tint: #e8f0f8;
+
+  --color-ink: #111111;
+  --color-ink-2: #4b5563;
+  --color-ink-3: #6b7280;
+
+  --color-good: #0053a0; /* improvements show in Goodwill blue */
+  --color-critical: #c62828;
+}
+
+body {
+  @apply bg-page text-ink font-sans antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:root {
+  color-scheme: light;
+}

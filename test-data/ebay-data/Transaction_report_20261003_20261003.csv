@@ -1,0 +1,14 @@
+﻿Transaction report
+"Oct 3, 2026 - Oct 3, 2026"
+Times are shown in Pacific time. Fees and net amounts are shown in the payout currency.
+
+Transaction creation date,Type,Order number,Legacy order ID,Buyer username,Buyer name,Ship to city,Ship to province/region/state,Ship to zip,Ship to country,Net amount,Payout currency,Payout date,Payout ID,Payout method,Payout status,Reason for hold,Item ID,Transaction ID,Item title,Custom label,Quantity,Item subtotal,Shipping and handling,Seller collected tax,eBay collected tax,Final Value Fee - fixed,Final Value Fee - variable,Regulatory operating fee,"Very high ""item not as described"" fee",Below standard performance fee,International fee,Charity donation,Deposit processing fee,Gross transaction amount,Transaction currency,Exchange rate,Reference ID,Description
+"Oct 3, 2026",Payout,--,--,--,--,--,--,--,--,-284.62,USD,"Oct 3, 2026",6012511874,Bank account ending in 4821,Paid,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,-284.62,USD,--,--,Payout to Bank account ending in 4821
+"Oct 3, 2026",Order,18-13327-55109,286502298871-2857031649920,pyrex_patty,Patricia Wells,Fort Wayne,IN,46802,US,146.79,USD,--,--,Bank account ending in 4821,Not paid,--,286502298871,0068003650972,Apple iPod Classic 160GB Silver 7th Gen,GWM-EBY-00021,1,172.00,0.00,0.00,12.04,-0.40,-24.81,--,--,--,--,--,--,184.04,USD,--,--,--
+"Oct 3, 2026",Shipping label,21-16074-90352,--,--,--,--,--,--,--,-17.85,USD,--,--,Bank account ending in 4821,Not paid,--,286507730158,--,Le Creuset Dutch Oven 5.5qt Flame Orange,GWM-EBY-00020,--,--,--,--,--,--,--,--,--,--,--,--,--,-17.85,USD,--,9400514287703163352841,Tracking no. 9400514287703163352841 USPS Ground Advantage
+"Oct 3, 2026",Order,21-16074-90352,286507730158-2855920374416,vinyl_vince_52,Vincent Alvarez,Milwaukee,WI,53202,US,122.32,USD,--,--,Bank account ending in 4821,Not paid,--,286507730158,0068004429861,Le Creuset Dutch Oven 5.5qt Flame Orange,GWM-EBY-00020,1,124.00,19.99,0.00,10.08,-0.40,-21.27,--,--,--,--,--,--,154.07,USD,--,--,--
+"Oct 3, 2026",Order,27-15530-48211,286504417392-2858813027735,thriftqueen_88,Jasmine Carter,Columbus,OH,43215,US,100.85,USD,--,--,Bank account ending in 4821,Not paid,--,286504417392,0068009113547,Carhartt Detroit Jacket J97 Brown Men's XL,GWM-EBY-00019,1,118.50,0.00,0.00,8.30,-0.40,-17.25,--,--,--,--,--,--,126.80,USD,--,--,--
+"Oct 3, 2026",Other fee,27-15530-48211,--,--,--,--,--,--,--,-5.93,USD,--,--,Bank account ending in 4821,Not paid,--,286504417392,--,Carhartt Detroit Jacket J97 Brown Men's XL,GWM-EBY-00019,--,--,--,--,--,--,--,--,--,--,--,--,--,-5.93,USD,--,--,Promoted Listings - General fee
+
+6 record(s) downloaded
+Seller ID : goodwill_michiana_ecom

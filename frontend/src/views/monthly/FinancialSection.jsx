@@ -24,7 +24,7 @@ export default function FinancialSection({ report, previous, history }) {
         <KpiTiles report={report} previous={previous} cols="" ids={['grossMarginPct']} />
         <ChartCard
           title="Revenue vs. same month last year"
-          subtitle={report.isPartial ? 'Each month compared over the same number of days as the month to date.' : 'Trailing 12 months.'}
+          subtitle={report.isPartial ? 'Compared over the same number of days as the month to date' : undefined}
           legend={[
             { name: 'This year', color: ACCENT },
             { name: 'Prior year', color: PRIOR_YEAR },
@@ -63,7 +63,6 @@ export default function FinancialSection({ report, previous, history }) {
       <ChartCard
         className="mt-5"
         title="Daily revenue by marketplace"
-        subtitle={`${formatMonth(report.month)}, stacked by marketplace`}
         legend={channels.map((c) => ({ name: c.name, color: c.color }))}
         table={{
           columns: [

@@ -95,6 +95,40 @@ export const TEMP_CATEGORIES = [
   { name: 'Kitchen', revenue: 5137.91, cost: 2375.9, unitsSold: 203 },
 ]
 
+// TODO(database): sales per item type within each category (e.g. couches in
+// Home) for the month. Feeds the watch list's item-level alerts. `name` is the
+// singular item type, used in sentences like "Couch sales in the Home category…".
+export const TEMP_ITEMS = [
+  { name: 'Couch', category: 'Home', revenue: 1640, unitsSold: 8 },
+  { name: 'Lamp', category: 'Home', revenue: 1260, unitsSold: 33 },
+  { name: 'Area rug', category: 'Home', revenue: 1050, unitsSold: 21 },
+  { name: 'Gold chain', category: 'Jewelry & Gemstones', revenue: 10400, unitsSold: 42 },
+  { name: 'Sterling ring', category: 'Jewelry & Gemstones', revenue: 4150, unitsSold: 97 },
+  { name: 'Wristwatch', category: 'Jewelry & Gemstones', revenue: 4900, unitsSold: 40 },
+  { name: 'Game console', category: 'Electronics', revenue: 5900, unitsSold: 44 },
+  { name: 'Laptop', category: 'Electronics', revenue: 6100, unitsSold: 23 },
+  { name: 'Headphones', category: 'Electronics', revenue: 2450, unitsSold: 53 },
+  { name: 'Denim jeans', category: 'Clothing', revenue: 3350, unitsSold: 108 },
+  { name: 'Leather jacket', category: 'Clothing', revenue: 2050, unitsSold: 23 },
+  { name: 'Vintage T-shirt', category: 'Clothing', revenue: 2000, unitsSold: 105 },
+  { name: 'Funko Pop', category: 'Collectibles', revenue: 1750, unitsSold: 88 },
+  { name: 'Sports card', category: 'Collectibles', revenue: 3950, unitsSold: 146 },
+  { name: 'Vinyl record', category: 'Collectibles', revenue: 1850, unitsSold: 84 },
+  { name: 'Film camera', category: 'Cameras & Photo', revenue: 7300, unitsSold: 49 },
+  { name: 'Camera lens', category: 'Cameras & Photo', revenue: 3450, unitsSold: 29 },
+  { name: 'Hardcover set', category: 'Books', revenue: 1500, unitsSold: 26 },
+  { name: 'LEGO set', category: 'Toys & Games', revenue: 2350, unitsSold: 37 },
+  { name: 'Board game', category: 'Toys & Games', revenue: 950, unitsSold: 53 },
+  { name: 'Nintendo game', category: 'Video Games', revenue: 2950, unitsSold: 105 },
+  { name: 'Electric guitar', category: 'Musical Instruments', revenue: 3600, unitsSold: 13 },
+  { name: 'Dutch oven', category: 'Kitchen', revenue: 1150, unitsSold: 13 },
+  { name: 'Pyrex set', category: 'Kitchen', revenue: 1170, unitsSold: 32 },
+  { name: 'Designer handbag', category: 'Handbags & Accessories', revenue: 4050, unitsSold: 21 },
+  { name: 'Sneakers', category: 'Shoes', revenue: 1640, unitsSold: 48 },
+  { name: 'Framed print', category: 'Art', revenue: 1240, unitsSold: 20 },
+  { name: 'Golf club set', category: 'Sporting Goods', revenue: 1420, unitsSold: 15 },
+]
+
 // TODO(database): unique buyers split into first-time and repeat; satisfaction
 // rating out of 5; Net Promoter Score (null when not available).
 export const TEMP_CUSTOMERS = { buyers: 3454, repeatBuyers: 1062, newBuyers: 2392, satisfaction: 4.77, nps: 49 }
@@ -112,6 +146,36 @@ export const TEMP_PREVIOUS_MONTH = {
   ],
   financial: { revenue: 224188.9, revenuePriorYear: 179347.32, cogs: 88856.46, operatingExpenses: 72629.02 },
   sales: { unitsSold: 5833, medianSalePrice: 25.41 },
+  items: [
+    { name: 'Couch', category: 'Home', revenue: 2140, unitsSold: 10 },
+    { name: 'Lamp', category: 'Home', revenue: 1210, unitsSold: 32 },
+    { name: 'Area rug', category: 'Home', revenue: 980, unitsSold: 20 },
+    { name: 'Gold chain', category: 'Jewelry & Gemstones', revenue: 9800, unitsSold: 40 },
+    { name: 'Sterling ring', category: 'Jewelry & Gemstones', revenue: 4300, unitsSold: 100 },
+    { name: 'Wristwatch', category: 'Jewelry & Gemstones', revenue: 6200, unitsSold: 50 },
+    { name: 'Game console', category: 'Electronics', revenue: 5400, unitsSold: 40 },
+    { name: 'Laptop', category: 'Electronics', revenue: 7900, unitsSold: 30 },
+    { name: 'Headphones', category: 'Electronics', revenue: 2300, unitsSold: 50 },
+    { name: 'Denim jeans', category: 'Clothing', revenue: 3100, unitsSold: 100 },
+    { name: 'Leather jacket', category: 'Clothing', revenue: 2700, unitsSold: 30 },
+    { name: 'Vintage T-shirt', category: 'Clothing', revenue: 1900, unitsSold: 100 },
+    { name: 'Funko Pop', category: 'Collectibles', revenue: 1600, unitsSold: 80 },
+    { name: 'Sports card', category: 'Collectibles', revenue: 3800, unitsSold: 141 },
+    { name: 'Vinyl record', category: 'Collectibles', revenue: 2200, unitsSold: 100 },
+    { name: 'Film camera', category: 'Cameras & Photo', revenue: 6900, unitsSold: 47 },
+    { name: 'Camera lens', category: 'Cameras & Photo', revenue: 3600, unitsSold: 30 },
+    { name: 'Hardcover set', category: 'Books', revenue: 1450, unitsSold: 25 },
+    { name: 'LEGO set', category: 'Toys & Games', revenue: 3200, unitsSold: 50 },
+    { name: 'Board game', category: 'Toys & Games', revenue: 900, unitsSold: 50 },
+    { name: 'Nintendo game', category: 'Video Games', revenue: 2800, unitsSold: 100 },
+    { name: 'Electric guitar', category: 'Musical Instruments', revenue: 3400, unitsSold: 12 },
+    { name: 'Dutch oven', category: 'Kitchen', revenue: 1300, unitsSold: 15 },
+    { name: 'Pyrex set', category: 'Kitchen', revenue: 1100, unitsSold: 30 },
+    { name: 'Designer handbag', category: 'Handbags & Accessories', revenue: 3900, unitsSold: 20 },
+    { name: 'Sneakers', category: 'Shoes', revenue: 1700, unitsSold: 50 },
+    { name: 'Framed print', category: 'Art', revenue: 1200, unitsSold: 19 },
+    { name: 'Golf club set', category: 'Sporting Goods', revenue: 1800, unitsSold: 19 },
+  ],
   customers: { buyers: 3357, repeatBuyers: 1055, newBuyers: 2302, satisfaction: 4.7, nps: 46 },
 }
 

@@ -31,15 +31,14 @@ export default function CustomerSection({ report, previous, history }) {
       <KpiTiles
         report={report}
         previous={previous}
-        cols="sm:grid-cols-2 lg:grid-cols-5"
-        ids={['buyers', 'newBuyers', 'satisfaction', 'nps', 'conversionRate']}
+        cols="sm:grid-cols-3 lg:grid-cols-6"
+        ids={['buyers', 'newBuyers', 'repeatBuyerRate', 'satisfaction', 'nps', 'conversionRate']}
       />
 
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
         <ChartCard
           className="lg:col-span-2"
           title="Retention — first-time vs. repeat buyers"
-          subtitle="Trailing 12 months"
           legend={[NEW, REPEAT]}
           height={280}
           table={{
@@ -110,7 +109,6 @@ export default function CustomerSection({ report, previous, history }) {
         </ChartCard>
         <ChartCard
           title="Conversion rate by marketplace"
-          subtitle="Orders ÷ listing views"
           height={hbarHeight(marketplace.length) + 20}
           table={{
             columns: [

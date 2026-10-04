@@ -54,7 +54,6 @@ function DetailedPerformance({ report, previous, history }) {
     <Disclosure
       className="mt-4"
       title="Detailed performance"
-      summary="Revenue trends, all categories and customer retention"
       actions={<Tabs tabs={DETAIL_TABS} value={tab} onChange={setTab} />}
     >
       <Section report={report} previous={previous} history={history} />

@@ -12,6 +12,7 @@ import {
   TEMP_CUSTOMERS,
   TEMP_DAILY_CHANNELS,
   TEMP_FINANCIAL,
+  TEMP_ITEMS,
   TEMP_MONTH_CHANNELS,
   TEMP_MONTH_DAILY_REVENUE,
   TEMP_MONTHLY_HISTORY,
@@ -82,6 +83,7 @@ export async function fetchMonthlyReport(month) {
     financial: TEMP_FINANCIAL,
     sales: TEMP_SALES,
     categories: TEMP_CATEGORIES,
+    items: TEMP_ITEMS,
     customers: TEMP_CUSTOMERS,
   }
 
@@ -94,6 +96,7 @@ export async function fetchMonthlyReport(month) {
     financial: TEMP_PREVIOUS_MONTH.financial,
     sales: TEMP_PREVIOUS_MONTH.sales,
     categories: [],
+    items: TEMP_PREVIOUS_MONTH.items,
     customers: TEMP_PREVIOUS_MONTH.customers,
   }
 

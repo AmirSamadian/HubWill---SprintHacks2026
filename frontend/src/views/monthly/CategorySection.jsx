@@ -15,7 +15,6 @@ const COLUMNS = [
 export default function CategorySection({ report }) {
   return (
     <Panel eyebrow="All categories">
-      <p className="-mt-2 mb-4 text-sm text-ink-3">Click a column heading to sort.</p>
       <CategoryTable rows={categoryRows(report)} />
     </Panel>
   )

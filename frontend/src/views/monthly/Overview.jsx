@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { Card, DeltaPill } from '../../components/ui'
-import { resolveChannels, SEGMENT_COLORS } from '../../config/channels'
+import { resolveChannels } from '../../config/channels'
 import { addMonths, formatMonth } from '../../lib/dates'
-import { change, fmt } from '../../lib/format'
-import { KPI_NOTES, KPIS, kpiDelta, kpiValue, SCORECARD, topCategories } from '../../lib/kpis'
+import { fmt } from '../../lib/format'
+import { KPIS, kpiDelta, kpiValue, SCORECARD, topCategories } from '../../lib/kpis'
 import { watchItems } from '../../lib/watchlist'
-import { SplitBar } from './shared'
 
 /** The COO operating view, most important first. */
 export default function Overview({ report, previous }) {
@@ -13,7 +12,7 @@ export default function Overview({ report, previous }) {
     <div className="space-y-4">
       <HeadlineRow report={report} previous={previous} />
       <WatchList report={report} previous={previous} />
-      <CategoryCustomerCard report={report} previous={previous} />
+      <CategoryCard report={report} />
     </div>
   )
 }
@@ -48,11 +47,9 @@ const SHADES = [1, 0.62, 0.34, 0.2, 0.12]
 
 function RevenueTile({ report, previous, vsPrev }) {
   const total = report.channels.reduce((s, c) => s + c.revenue, 0) || 1
-  const prevById = new Map(previous.channels.map((c) => [c.id, c]))
   const rows = resolveChannels(report.channels).map((ch, i) => {
     const revenue = report.channels.find((c) => c.id === ch.id)?.revenue ?? 0
-    const delta = report.isPartial ? null : change(revenue, prevById.get(ch.id)?.revenue)
-    return { ...ch, revenue, share: revenue / total, delta, shade: SHADES[i] ?? 0.1 }
+    return { ...ch, revenue, share: revenue / total, shade: SHADES[i] ?? 0.1 }
   })
 
   return (
@@ -82,10 +79,6 @@ function RevenueTile({ report, previous, vsPrev }) {
               {r.name}
             </div>
             <div className="tabular mt-0.5 text-sm font-semibold">{fmt.currencyCompact(r.revenue)}</div>
-            <div className="tabular text-white/70">
-              {fmt.pct(r.share)}
-              {r.delta !== null && ` · ${fmt.signedPct(r.delta)}`}
-            </div>
           </li>
         ))}
       </ul>
@@ -103,76 +96,64 @@ function KpiTile({ id, report, previous, context }) {
       </div>
       <div className="tabular mt-1 text-3xl font-bold tracking-tight text-ink">{fmt[kpi.format](kpiValue(id, report))}</div>
       <div className="mt-1 text-xs text-ink-3">{context}</div>
-      <p className="mt-auto pt-3 text-xs text-ink-3">{KPI_NOTES[id].why}</p>
     </Card>
   )
 }
 
 // ---------- early warnings ----------
 
+// Watch list items shown before "Show all".
+const WATCH_PREVIEW = 2
+
 function WatchList({ report, previous }) {
+  const [showAll, setShowAll] = useState(false)
   const items = watchItems(report, previous)
   if (!items.length) return null
-  const shown = items.slice(0, 4)
+  const shown = showAll ? items : items.slice(0, WATCH_PREVIEW)
 
   return (
     <div className="flex gap-3 rounded-lg bg-critical/5 px-4 py-3 ring-1 ring-critical/15" role="status">
       <span className="grid size-6 shrink-0 place-items-center rounded-full bg-critical text-xs font-bold text-white" aria-hidden="true">
         !
       </span>
-      <div className="text-sm">
+      <div className="min-w-0 flex-1 text-sm">
         <span className="font-semibold text-ink">Watch list</span>
-        <ul className="mt-1 space-y-0.5 text-ink-2">
-          {shown.map((item) => (
-            <li key={item.id}>
-              <span className="font-medium text-ink">{item.label}</span>{' '}
-              <span className="tabular text-critical">{item.change}</span>
-              {item.note && <span> · {item.note}</span>}
+        <ul className="mt-1 space-y-1 text-ink-2">
+          {shown.map((i) => (
+            <li key={i.id} className="flex flex-wrap items-baseline justify-between gap-x-4">
+              <span>
+                <strong className="font-semibold text-ink">{i.item}</strong> sales in the{' '}
+                <strong className="font-semibold text-ink">{i.category}</strong> category have gone down by{' '}
+                <strong className="tabular font-semibold text-critical">{fmt.pct(-i.change)}</strong> since last month
+              </span>
+              <span className="tabular text-xs text-ink-3">
+                {fmt.currency(i.previousRevenue)} → {fmt.currency(i.revenue)}
+              </span>
             </li>
           ))}
         </ul>
-        {items.length > shown.length && (
-          <div className="mt-1 text-xs text-ink-3">+{items.length - shown.length} more moved the wrong way</div>
+        {items.length > WATCH_PREVIEW && (
+          <button type="button" onClick={() => setShowAll((s) => !s)} className="mt-1 text-xs font-medium text-brand hover:underline">
+            {showAll ? 'Show fewer' : `Show all ${items.length}`}
+          </button>
         )}
       </div>
     </div>
   )
 }
 
-// ---------- category + customer ----------
+// ---------- top categories ----------
 
-function CategoryCustomerCard({ report, previous }) {
-  const g = SCORECARD.find((s) => s.id === 'categoryCustomer')
-  const c = report.customers
-  const kpi = KPIS.repeatBuyerRate
+function CategoryCard({ report }) {
+  const g = SCORECARD.find((s) => s.id === 'categories')
   return (
     <Card>
-      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-black/5 px-5 pb-3 pt-4">
-        <div>
-          <div className="text-xs font-bold uppercase tracking-wider text-brand">{g.eyebrow}</div>
-          <h3 className="mt-0.5 text-base font-bold tracking-tight text-ink">{g.title}</h3>
-        </div>
-        <p className="text-sm text-ink-3">{g.blurb}</p>
+      <div className="border-b border-black/5 px-5 pb-3 pt-4">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-brand">{g.eyebrow}</h3>
       </div>
-      <div className="grid divide-y divide-black/5 lg:grid-cols-[1fr_1fr_0.8fr] lg:divide-x lg:divide-y-0">
-        <TopList title="Top categories by revenue" rows={topCategories(report, 'revenue')} valueKey="revenue" />
-        <TopList title="Top categories by margin" rows={topCategories(report, 'margin')} valueKey="margin" />
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-2">
-            <span className="text-sm font-medium text-ink-2">{kpi.label}</span>
-            <DeltaPill delta={kpiDelta('repeatBuyerRate', report, previous)} better={kpi.better} />
-          </div>
-          <div className="tabular mt-1 text-3xl font-bold tracking-tight text-ink">{fmt.pct(kpiValue('repeatBuyerRate', report))}</div>
-          <p className="mt-1 text-xs text-ink-3">{KPI_NOTES.repeatBuyerRate.why}</p>
-          <div className="mt-4">
-            <SplitBar
-              segments={[
-                { name: 'Repeat buyers', value: c.repeatBuyers, color: SEGMENT_COLORS.primary },
-                { name: 'First-time buyers', value: c.newBuyers, color: SEGMENT_COLORS.secondary, textColor: '#111111' },
-              ]}
-            />
-          </div>
-        </div>
+      <div className="grid divide-y divide-black/5 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
+        <TopList title="By revenue" rows={topCategories(report, 'revenue')} valueKey="revenue" />
+        <TopList title="By margin" rows={topCategories(report, 'margin')} valueKey="margin" />
       </div>
     </Card>
   )

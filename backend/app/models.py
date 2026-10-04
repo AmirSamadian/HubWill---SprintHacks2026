@@ -22,7 +22,9 @@ class Totals(BaseModel):
 
 
 class MarketplaceSummary(Totals):
-    marketplace: str
+    marketplace: str = Field(
+        description="shopgoodwill, amazon, ebay, or other (all remaining vendors combined)."
+    )
 
 
 class TrendPoint(BaseModel):

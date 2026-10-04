@@ -55,10 +55,15 @@ def build_report(period: Period, selected: date, repository: OrderRepository) ->
         change = rounded((current_totals.revenue - previous_totals.revenue) / previous_totals.revenue * 100)
 
     marketplaces = []
-    standard_marketplaces = ("shopgoodwill", "amazon", "ebay", "other")
-    extra_marketplaces = sorted({order.marketplace for order in current} - set(standard_marketplaces))
-    for marketplace in (*standard_marketplaces, *extra_marketplaces):
-        subset = tuple(order for order in current if order.marketplace == marketplace)
+    named_marketplaces = ("shopgoodwill", "amazon", "ebay")
+    for marketplace in (*named_marketplaces, "other"):
+        # Keep vendor names in source records, but combine all remaining vendors
+        # into one Other row. Each order contributes to exactly one report row.
+        subset = tuple(
+            order for order in current
+            if (order.marketplace not in named_marketplaces if marketplace == "other"
+                else order.marketplace == marketplace)
+        )
         marketplaces.append(MarketplaceSummary(marketplace=marketplace, **totals(subset).model_dump()))
 
     trend = []

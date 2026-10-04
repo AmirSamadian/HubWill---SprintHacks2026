@@ -44,7 +44,7 @@ MOCK_ORDERS = (
     mock_order("1001", "ebay", "2026-10-03", "60.00", units=2, buyer="buyer-b"),
     mock_order("1001", "amazon", "2026-10-03", "90.00", units=3),
     mock_order("oct-4", "shopgoodwill", "2026-10-03", "150.00", units=3),
-    mock_order("oct-5", "other", "2026-10-03", "25.00"),
+    mock_order("oct-5", "goodwillbooks", "2026-10-03", "25.00"),
 )
 
 

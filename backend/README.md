@@ -72,6 +72,10 @@ in the frontend.
 
 ### Metric definitions
 
+- Marketplace rows are ShopGoodwill, Amazon, eBay, and Other. Other combines all
+  remaining vendors' revenue, transactions, and units for the selected period.
+  Original vendor names remain in source records; no separate vendor rows or
+  duplicate subtotals are added. This applies to daily, monthly, and yearly reports.
 - Transactions count paid orders, not unique people; order IDs are channel-scoped.
 - Revenue is paid item revenue after discounts, excluding shipping, taxes and fees.
   Final refund treatment remains to be agreed when the real schema arrives.

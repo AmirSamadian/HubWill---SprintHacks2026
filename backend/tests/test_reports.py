@@ -60,6 +60,26 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(report_window(Period.month, date(2026, 1, 15)),
                          (date(2026, 1, 1), date(2026, 2, 1), date(2025, 12, 1)))
 
+    def test_other_combines_all_remaining_vendors_for_every_period(self):
+        repository = MockOrderRepository((
+            mock_order("1", "amazon", "2026-10-03", "100.00", units=2),
+            mock_order("1", "goodwillbooks", "2026-10-03", "20.00", units=2),
+            mock_order("1", "etsy", "2026-10-03", "30.00", units=3),
+            mock_order("1", "other", "2026-10-03", "10.00"),
+            mock_order("future", "etsy", "2027-01-01", "999.00"),
+        ))
+        for period in Period:
+            with self.subTest(period=period):
+                report = build_report(period, date(2026, 10, 3), repository)
+                rows = {row.marketplace: row for row in report.marketplaces}
+                self.assertEqual(set(rows), {"shopgoodwill", "amazon", "ebay", "other"})
+                self.assertEqual(rows["other"].revenue, Decimal("60.00"))
+                self.assertEqual(rows["other"].transactions, 3)
+                self.assertEqual(rows["other"].units_sold, 6)
+                self.assertEqual(rows["other"].average_selling_price, Decimal("10.00"))
+                self.assertEqual(sum(row.revenue for row in rows.values()), report.totals.revenue)
+                self.assertEqual(sum(row.transactions for row in rows.values()), report.totals.transactions)
+
 
 if __name__ == "__main__":
     unittest.main()

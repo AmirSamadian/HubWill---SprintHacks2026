@@ -20,10 +20,11 @@ preserves the attached design without resolving its open decisions.
   IDs. External IDs are `TEXT` and unique only within their source.
 - All tables/columns/indexes/constraints/migrations use `snake_case`; use the
   exact singular table names below, including `sales_order`, not `order`.
-- Monetary values use PostgreSQL `NUMERIC`, never floating point. Precision/scale,
-  key-generation mechanism, and timestamp convention remain open (§9).
+- Monetary values use unconstrained PostgreSQL `NUMERIC`, never floating point.
+  Keys use PostgreSQL identity columns and timestamps use `TIMESTAMPTZ`
+  (resolved in `DECISIONS.md`, D019).
 - In the tables below, **Required** means `NOT NULL`; **Optional** means nullable.
-  **Timestamp** denotes a timestamp type still to be selected, not a SQL type name.
+  **Timestamp** denotes `TIMESTAMPTZ`.
   Defaults are not agreed. A known true zero may be stored as `0`; missing data
   must not be silently defaulted to zero.
 
@@ -359,9 +360,9 @@ Preserve these unresolved choices; do not silently treat a suggestion as accepte
 | Missing money | Future missing required monetary facts: nullable fields or enrichment; never unknown → zero. |
 | Review scale | Canonical scale and marketplace normalization before comparing ratings. |
 | SKU uniqueness | Confirm global stable SKU guarantee before enforcing `UNIQUE(sku_number)`. |
-| Timestamps | `TIMESTAMP` vs `TIMESTAMPTZ`, source-timezone normalization, and reporting timezone; preserve intended business dates. |
-| Key generation | Identity columns, sequences, or equivalent consistent PostgreSQL-native mechanism. |
-| Numeric precision | Unconstrained `NUMERIC` vs agreed fixed precision/scale such as `NUMERIC(p,2)`. |
+| Timestamps | Type resolved: `TIMESTAMPTZ`. Honor supplied timezones; otherwise use configured source/default timezone during normalization. Reporting timezone remains configurable; actual source/default mappings remain to be configured (D019). |
+| Key generation | Resolved: PostgreSQL identity columns (D019). |
+| Numeric precision | Resolved: unconstrained `NUMERIC` (D019). |
 
 **Fidelity notes (gaps identified while condensing, not new accepted decisions):**
 

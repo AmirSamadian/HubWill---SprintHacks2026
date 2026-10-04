@@ -1,0 +1,47 @@
+@import 'tailwindcss';
+
+/* Goodwill brand tokens: Goodwill blue on clean white, black ink. */
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-page: #f5f7fa; /* page background */
+  --color-surface: #ffffff; /* cards and chart surface */
+
+  --color-brand: #0053a0; /* Goodwill blue */
+  --color-brand-dark: #003f7a;
+  --color-brand-tint: #e8f0f8;
+
+  --color-ink: #111111;
+  --color-ink-2: #4b5563;
+  --color-ink-3: #6b7280;
+
+  --color-good: #0053a0; /* improvements show in Goodwill blue */
+  --color-critical: #c62828;
+}
+
+body {
+  @apply bg-page text-ink font-sans antialiased;
+}
+
+/* Everything inside is ~12% larger (text) and ~10% roomier (spacing). Tailwind
+   sizes text and spacing through these variables, so overriding them here
+   scales the whole subtree. Used on the monthly page. */
+.scale-up {
+  --text-xs: 0.84rem;
+  --text-sm: 0.98rem;
+  --text-base: 1.12rem;
+  --text-lg: 1.26rem;
+  --text-xl: 1.4rem;
+  --text-2xl: 1.68rem;
+  --text-3xl: 2.1rem;
+  --text-4xl: 2.52rem;
+  --spacing: 0.275rem;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:root {
+  color-scheme: light;
+}

@@ -321,3 +321,21 @@ In particular:
 - normalized persistent state belongs in the database
 - business calculations belong in the backend
 - visualization belongs in the frontend
+
+---
+
+## D019 — PostgreSQL Keys, Numbers, And Timestamps
+
+**Status:** Accepted (2026-10-04)
+
+Use PostgreSQL identity columns for internal numeric keys, unconstrained
+`NUMERIC` for monetary values and ratings, and `TIMESTAMPTZ` for timestamps.
+
+Normalization must honor timezone information supplied by the source. When the
+source supplies none, interpret the value using a configured source/default
+timezone. Reporting timezone remains configurable. `TIMESTAMPTZ` retains the
+instant; the archived source preserves the original timezone text.
+
+Implementation uses `BIGINT GENERATED ALWAYS AS IDENTITY`. Operational setup,
+plain SQL migration commands, and remaining integration decisions are described
+in `backend/database/README.md`.

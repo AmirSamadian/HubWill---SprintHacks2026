@@ -163,15 +163,20 @@ function CategoryCard({ report }) {
         <h3 className="text-xs font-bold uppercase tracking-wider text-brand">{g.eyebrow}</h3>
       </div>
       <div className="grid divide-y divide-black/5 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
-        <TopList title="By revenue" rows={topCategories(report, 'revenue')} valueKey="revenue" />
-        <TopList title="By margin" rows={topCategories(report, 'margin')} valueKey="margin" />
+        <TopList title="By revenue" rows={topCategories(report, 'revenue')} valueKey="revenue" empty="No sales recorded this month." />
+        <TopList
+          title="By margin"
+          rows={topCategories(report, 'margin')}
+          valueKey="margin"
+          empty="Unavailable: the database has no cost-of-goods data to calculate margin."
+        />
       </div>
     </Card>
   )
 }
 
 /** Ranked list showing the top 5, expandable to the full top 10. */
-function TopList({ title, rows, valueKey }) {
+function TopList({ title, rows, valueKey, empty }) {
   const [expanded, setExpanded] = useState(false)
   const shown = expanded ? rows : rows.slice(0, 5)
   const max = rows[0]?.[valueKey] || 1
@@ -185,6 +190,7 @@ function TopList({ title, rows, valueKey }) {
           </button>
         )}
       </div>
+      {rows.length === 0 && <p className="mt-3 text-sm text-ink-3">{empty}</p>}
       <ol className="mt-3 space-y-2">
         {shown.map((r, i) => (
           <li key={r.name} className="grid grid-cols-[1.1rem_1fr_4rem] items-center gap-2 text-sm">

@@ -4,9 +4,12 @@ import datetime as dt
 import smtplib
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
+from . import config
+from .dashboard import ReportData, ReportError, daily_report, monthly_history, monthly_report, to_json
 from .demo_delivery import send_to_demo_server
 from .delivery_history import DeliveryHistory
 from .email_models import DemoDeliveryResult, MonthlyEmailPreview, RecipientSettings
@@ -14,7 +17,7 @@ from .models import DashboardReport, Period
 from .monthly_email import build_email_preview
 from .recipient_store import recipient_store, state_directory
 from .reports import build_report
-from .repository import repository
+from .repository import DatabaseUnavailable, repository
 
 
 class HealthResponse(BaseModel):
@@ -30,6 +33,24 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# The dashboard runs in a browser on this computer (Vite picks 5173, 5174, ...).
+# Add other origins with DASHBOARD_ALLOWED_ORIGINS (comma-separated).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.allowed_origins(),
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_methods=["GET", "PUT", "POST"],
+    allow_headers=["Content-Type"],
+)
+
+
+def report_data() -> ReportData:
+    """One read-only snapshot of the database per request."""
+    try:
+        return ReportData(repository.snapshot(config.settings().reporting_timezone))
+    except DatabaseUnavailable as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+
 
 @app.get("/api/health", response_model=HealthResponse, tags=["Health"])
 def health() -> HealthResponse:
@@ -42,10 +63,43 @@ def dashboard(
     period: Period,
     date: dt.date = Query(description="A date within the requested day, month, or year."),
 ) -> DashboardReport:
-    # The route knows the API contract; the repository handles the data source.
+    # The route knows the API contract; dashboard.py holds the shared calculations.
+    data = report_data()
     try:
-        return build_report(period, date, repository)
+        return build_report(period, date, repository, data)
     except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+# ---------------------------------------------------------------- frontend reports
+
+@app.get("/api/reports/daily", tags=["Dashboard"])
+def daily(date: dt.date = Query(description="Reporting date (YYYY-MM-DD), through yesterday.")) -> dict:
+    data = report_data()
+    try:
+        return to_json(daily_report(data, date))
+    except ReportError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.get("/api/reports/monthly", tags=["Dashboard"])
+def monthly(month: str = Query(description="Month (YYYY-MM).")) -> dict:
+    data = report_data()
+    try:
+        return to_json(monthly_report(data, month))
+    except ReportError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.get("/api/reports/monthly/history", tags=["Dashboard"])
+def history(
+    month: str = Query(description="Last month of the history (YYYY-MM)."),
+    months: int = Query(12, description="Number of months, 1-36."),
+) -> list[dict]:
+    data = report_data()
+    try:
+        return to_json(monthly_history(data, month, months))
+    except ReportError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
 

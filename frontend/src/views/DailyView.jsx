@@ -26,17 +26,16 @@ export default function DailyView() {
 
 /** The nightly channel breakdown for one day: each marketplace, then the enterprise total. */
 function NightlyReport({ report }) {
-  // One row per configured or reported marketplace, zero-filled if missing.
+  // One row per configured or reported marketplace. A value the database does
+  // not hold stays null and shows as "—" (e.g. customers on marketplaces that
+  // don't share buyer identity), never as zero.
   const byId = new Map(report.channels.map((c) => [c.id, c]))
   const rows = resolveChannels(report.channels).map((c) => ({
     ...c,
-    revenue: byId.get(c.id)?.revenue ?? 0,
-    customers: byId.get(c.id)?.customers ?? 0,
+    revenue: byId.get(c.id)?.revenue ?? null,
+    customers: byId.get(c.id)?.customers ?? null,
   }))
-  const total = {
-    revenue: rows.reduce((s, r) => s + r.revenue, 0),
-    customers: rows.reduce((s, r) => s + r.customers, 0),
-  }
+  const total = { revenue: report.totals?.revenue ?? null, customers: report.totals?.customers ?? null }
 
   return (
     <Card className="overflow-hidden">
@@ -56,7 +55,7 @@ function NightlyReport({ report }) {
           </thead>
           <tbody className="divide-y divide-black/5">
             {rows.map((r) => {
-              const share = total.revenue ? r.revenue / total.revenue : 0
+              const share = total.revenue && r.revenue !== null ? r.revenue / total.revenue : 0
               return (
                 <tr key={r.id}>
                   <td className="px-6 py-4">

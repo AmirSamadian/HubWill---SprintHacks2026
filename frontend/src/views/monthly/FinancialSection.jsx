@@ -2,7 +2,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { AXIS_LG, ChartCard, ChartTooltip, CURSOR, GRID, SURFACE } from '../../components/charts'
 import { ACCENT, resolveChannels } from '../../config/channels'
 import { formatLongDate, formatMonth, formatMonthShort, formatShortDate, parseISODate } from '../../lib/dates'
-import { change, fmt } from '../../lib/format'
+import { fmt } from '../../lib/format'
 import { KpiTiles } from './shared'
 
 const PRIOR_YEAR = '#a3acb9'
@@ -16,7 +16,8 @@ export default function FinancialSection({ report, previous, history }) {
     return point
   })
 
-  const yoy = history.map((h) => ({ ...h, growth: change(h.revenue, h.revenuePriorYear) }))
+  // History rows carry revenue, prior-year revenue and growth, computed by the backend.
+  const yoy = history
 
   return (
     <section>

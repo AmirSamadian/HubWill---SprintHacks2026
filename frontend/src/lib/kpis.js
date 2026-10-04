@@ -1,34 +1,29 @@
-// Every KPI in the Goodwill Michiana framework, computed from the raw monthly
-// report. The backend only has to supply raw facts; all ratios live here so the
-// definitions are written down in exactly one place.
+// Labels and display rules for the Goodwill Michiana KPIs. The values, their
+// month-over-month changes and category figures are all computed by the
+// backend (backend/app/dashboard.py, per DECISIONS D008); this file only reads
+// them. A null value means the database cannot supply it and shows as "—".
 
-import { change } from './format'
+/** Each KPI: label, format key (see fmt in ./format.js) and which direction is good. */
+const kpi = (label, format) => ({ label, format, better: 'up' })
 
-const safeDiv = (a, b) => (b ? a / b : null)
-
-/**
- * Each KPI: label, format key (see fmt in ./format.js), how to compute it, and
- * which direction is good. `additive` KPIs are totals that grow with the number
- * of days, so they are not compared month-over-month while a month is partial.
- */
 export const KPIS = {
   // Financial
-  revenue: { label: 'Total E-Commerce Revenue', format: 'currency', better: 'up', additive: true, get: (r) => r.financial.revenue },
-  revenueGrowthYoY: { label: 'Revenue Growth % (YoY)', format: 'signedPct', better: 'up', get: (r) => change(r.financial.revenue, r.financial.revenuePriorYear) },
-  grossMarginPct: { label: 'Gross Margin %', format: 'pct', better: 'up', get: (r) => safeDiv(r.financial.revenue - r.financial.cogs, r.financial.revenue) },
-  netMarginPct: { label: 'Net Margin %', format: 'pct', better: 'up', get: (r) => safeDiv(netProfit(r), r.financial.revenue) },
+  revenue: kpi('Total E-Commerce Revenue', 'currency'),
+  revenueGrowthYoY: kpi('Revenue Growth % (YoY)', 'signedPct'),
+  grossMarginPct: kpi('Gross Margin %', 'pct'),
+  netMarginPct: kpi('Net Margin %', 'pct'),
 
   // Sales
-  unitsSold: { label: 'Units Sold', format: 'number', better: 'up', additive: true, get: (r) => r.sales.unitsSold },
-  avgSellingPrice: { label: 'Average Selling Price (ASP)', format: 'currencyCents', better: 'up', get: (r) => safeDiv(r.financial.revenue, r.sales.unitsSold) },
-  listingsCreated: { label: 'Total Listings Created', format: 'number', better: 'up', additive: true, get: (r) => r.listings.created },
-  medianSalePrice: { label: 'Median Sale Price', format: 'currencyCents', better: 'up', get: (r) => r.sales.medianSalePrice },
+  unitsSold: kpi('Units Sold', 'number'),
+  avgSellingPrice: kpi('Average Selling Price (ASP)', 'currencyCents'),
+  listingsCreated: kpi('Total Listings Created', 'number'),
+  medianSalePrice: kpi('Median Sale Price', 'currencyCents'),
 
   // Customer & marketplace
-  buyers: { label: 'Number of Buyers', format: 'number', better: 'up', additive: true, get: (r) => r.customers.buyers },
-  repeatBuyerRate: { label: 'Repeat Buyer Rate', format: 'pct', better: 'up', get: (r) => safeDiv(r.customers.repeatBuyers, r.customers.buyers) },
-  newBuyers: { label: 'New Buyers', format: 'number', better: 'up', additive: true, get: (r) => r.customers.newBuyers },
-  satisfaction: { label: 'Customer Satisfaction Rating', format: 'rating', better: 'up', get: (r) => r.customers.satisfaction },
+  buyers: kpi('Number of Buyers', 'number'),
+  repeatBuyerRate: kpi('Repeat Buyer Rate', 'pct'),
+  newBuyers: kpi('New Buyers', 'number'),
+  satisfaction: kpi('Customer Satisfaction Rating', 'rating'),
 }
 
 // The KPIs that make up the one-page COO operating view, in groups. Labor and
@@ -51,42 +46,25 @@ export const SCORECARD = [
   },
 ]
 
-function netProfit(r) {
-  return r.financial.revenue - r.financial.cogs - r.financial.operatingExpenses
-}
-
-/** Value of one KPI for a report, or null if it can't be computed. */
+/** Value of one KPI for a report, or null if the backend could not compute it. */
 export function kpiValue(id, report) {
-  try {
-    return KPIS[id].get(report) ?? null
-  } catch {
-    return null
-  }
+  return report?.kpis?.[id] ?? null
 }
 
-/** Month-over-month change for a KPI, or null when it isn't a fair comparison. */
-export function kpiDelta(id, report, previous) {
-  const kpi = KPIS[id]
-  if (!previous || (kpi.additive && report.isPartial)) return null
-  const cur = kpiValue(id, report)
-  const prev = kpiValue(id, previous)
-  if (cur === null || prev === null) return null
-  // Percent and score KPIs compare in points; everything else as relative change.
-  if (['pct', 'signedPct'].includes(kpi.format)) return { kind: 'points', value: cur - prev }
-  if (kpi.format === 'score') return { kind: 'score', value: cur - prev }
-  return { kind: 'relative', value: change(cur, prev) }
+/** Month-over-month change for a KPI ({ kind, value }), or null when it isn't a fair comparison. */
+export function kpiDelta(id, report) {
+  return report?.kpiDeltas?.[id] ?? null
 }
 
-/** Category rows with derived margin and ASP. */
+/** Category rows (sales, units, ASP; margin fields are null without cost data). */
 export function categoryRows(report) {
-  return report.categories.map((c) => ({
-    ...c,
-    margin: c.revenue - c.cost,
-    marginPct: safeDiv(c.revenue - c.cost, c.revenue),
-    asp: safeDiv(c.revenue, c.unitsSold),
-  }))
+  return report.categories ?? []
 }
 
+/** Top categories by a figure; categories without that figure are left out. */
 export function topCategories(report, key, n = 10) {
-  return [...categoryRows(report)].sort((a, b) => b[key] - a[key]).slice(0, n)
+  return categoryRows(report)
+    .filter((c) => c[key] !== null && c[key] !== undefined)
+    .sort((a, b) => b[key] - a[key])
+    .slice(0, n)
 }

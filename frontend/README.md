@@ -28,17 +28,31 @@ Every chart has a **Table** toggle that shows the underlying numbers.
 
 ## Where the data comes from
 
-All numbers are currently **temporary placeholders** in [`src/api/placeholderData.js`](src/api/placeholderData.js). Every export there has a `TODO(database)` comment that describes the data that should replace it.
+All numbers come from the backend (`backend/`), which reads the PostgreSQL
+database. Start the backend before the dashboard (see `backend/README.md` →
+"Database integration"). [`src/api/index.js`](src/api/index.js) is the only
+file that talks to it. By default it calls `http://127.0.0.1:8000/api`; set
+`VITE_API_URL` in `frontend/.env.local` to change that.
 
-[`src/api/index.js`](src/api/index.js) is the only place that reads that file. To connect the database, do one of these:
+It uses three endpoints:
+- `GET /reports/daily?date=YYYY-MM-DD`
+- `GET /reports/monthly?month=YYYY-MM`
+- `GET /reports/monthly/history?month=YYYY-MM&months=12`
 
-1. Replace the placeholder sections in `fetchDailyReport` / `fetchMonthlyReport` with real queries, keeping the same object shape.
-2. Set `VITE_API_URL` in `frontend/.env.local`. The dashboard then calls:
-   - `GET /reports/daily?date=YYYY-MM-DD`
-   - `GET /reports/monthly?month=YYYY-MM`
-   - `GET /reports/monthly/history?month=YYYY-MM&months=12`
+**The backend computes every metric:** revenue, growth, ASP, repeat buyers,
+month-over-month changes, top categories and the watch list. This follows
+DECISIONS D008. [`src/lib/kpis.js`](src/lib/kpis.js) and
+[`src/lib/watchlist.js`](src/lib/watchlist.js) only hold labels and read those
+values.
 
-The backend only supplies raw facts like revenue, costs, units and buyers. All ratios (margins, sell-through, repeat rate, and so on) are defined once in [`src/lib/kpis.js`](src/lib/kpis.js).
+**Unavailable values show as "—".** A value the database can't supply comes back
+as `null` and is never shown as 0. For example:
+- margins, because there's no cost data
+- customer satisfaction, because the rating scale isn't agreed
+- daily customers on Amazon and ShopGoodwill, which don't share buyer identity
+
+**Errors are shown on the page.** If the backend isn't running or returns an
+error, the page shows the reason.
 
 ## Adding a marketplace
 

@@ -2,10 +2,11 @@
 
 The email renderer in `app/monthly_email.py` takes the shared monthly
 `DashboardReport` and recipient settings. It formats values without querying
-the database or duplicating dashboard calculations. The dashboard developer
-should supply the same monthly report to preview, manual delivery, and scheduler
-paths when the PostgreSQL integration is ready. Current paths still use mock
-orders and explicitly mark the output as a demo.
+the database or duplicating dashboard calculations. Preview, manual delivery
+and the scheduler all build that report from PostgreSQL through the same
+calculations as the dashboard (`app/dashboard.py`, via `app/reports.py`), so the
+email and the dashboard always show the same figures. Mock orders are used only
+by tests; output built from them is still marked as a demo.
 
 The short snapshot highlights revenue, transactions, and units sold, with
 average selling price as a secondary metric. Up to three factual observations

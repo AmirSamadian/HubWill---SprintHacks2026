@@ -25,6 +25,9 @@ function CategoryTable({ rows }) {
   const sorted = [...rows].sort((a, b) => {
     const av = a[sort.key]
     const bv = b[sort.key]
+    // Unavailable values (null, e.g. margin without cost data) always sort last.
+    if (av === null || av === undefined) return bv === null || bv === undefined ? 0 : 1
+    if (bv === null || bv === undefined) return -1
     return (typeof av === 'string' ? av.localeCompare(bv) : av - bv) * sort.dir
   })
   const toggle = (key) => setSort((s) => (s.key === key ? { key, dir: -s.dir } : { key, dir: key === 'name' ? 1 : -1 }))

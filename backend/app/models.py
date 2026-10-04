@@ -15,7 +15,8 @@ class Period(str, Enum):
 
 class Totals(BaseModel):
     # Decimal values serialize as strings, preserving exact currency amounts.
-    revenue: Decimal
+    # None means unavailable (e.g. an order without items), never zero.
+    revenue: Decimal | None
     transactions: int
     units_sold: int
     average_selling_price: Decimal | None
@@ -29,7 +30,7 @@ class MarketplaceSummary(Totals):
 
 class TrendPoint(BaseModel):
     bucket_start: date
-    revenue: Decimal
+    revenue: Decimal | None
     transactions: int
 
 
@@ -48,7 +49,7 @@ class EbayBuyers(BaseModel):
 class Comparison(BaseModel):
     start: date
     end_exclusive: date
-    revenue: Decimal
+    revenue: Decimal | None
     revenue_change_percent: Decimal | None
     definition: str = (
         "Compares with the full previous calendar day, month, or year. "

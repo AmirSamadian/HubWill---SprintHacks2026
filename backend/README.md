@@ -30,6 +30,117 @@ This health check verifies the API process only, not database readiness.
 
 The root `.gitignore` excludes `.venv`, Python caches, and local `.env` secrets.
 
+## Database integration (current)
+
+The API now reads PostgreSQL. The dashboard, `/api/dashboard`, the monthly
+email preview and the scheduler all use the same calculations
+(`app/dashboard.py`). The mock orders in `app/repository.py` are test fixtures
+only. The milestone notes below describe earlier mock-data stages.
+
+### Setup
+
+1. **Create and load the database**, if not already done. Use the migrations
+   in `database/`, then `test-data/historical/load_historical.sql` and
+   optionally `ingestion/ingest.py`. See those READMEs.
+2. **Set the connection** in the git-ignored root `.env` with libpq variables:
+   `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, and `PGPASSWORD` if needed.
+   Variables set in your shell take precedence over the file. The backend only
+   reads: every request runs in a read-only transaction.
+3. **Install and run** from `backend/`. For development, use
+   `requirements-dev.txt`, which adds the test client.
+
+   macOS / Linux:
+   ```sh
+   python3 -m venv .venv
+   .venv/bin/python -m pip install -r requirements-dev.txt
+   .venv/bin/python -m uvicorn app.main:app --port 8000
+   ```
+   Windows (PowerShell):
+   ```powershell
+   py -m venv .venv
+   .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+   .\.venv\Scripts\python.exe -m uvicorn app.main:app --port 8000
+   ```
+   To use a database other than the one in `.env`, run, for example,
+   `PGDATABASE=goodwill_db_test .venv/bin/python -m uvicorn app.main:app --port 8000`.
+4. **Start the dashboard:** `cd frontend && npm run dev`. It calls
+   `http://127.0.0.1:8000/api` by default.
+
+On macOS with Postgres.app, run the backend from a terminal you've approved in
+Postgres.app. Password-free connections from other apps are refused.
+
+### Settings (optional)
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DASHBOARD_REVENUE_METRIC` | `merchandise_before_refunds` | Which revenue definition to show: `merchandise_before_refunds`, `merchandise_after_refunds` or `transaction_revenue` |
+| `REPORTING_TIMEZONE` | `America/New_York` | Time zone that decides which day and month an order belongs to |
+| `DASHBOARD_ALLOWED_ORIGINS` | none | Extra browser origins allowed to call the API. Local dashboards on any port are always allowed. |
+
+### Endpoints the dashboard uses
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/reports/daily?date=YYYY-MM-DD` | Revenue, orders and customers per marketplace, plus totals. Available through yesterday. |
+| `GET /api/reports/monthly?month=YYYY-MM` | Monthly KPIs and month-over-month changes, marketplaces, daily revenue, categories, eBay buyers and the watch list |
+| `GET /api/reports/monthly/history?month=YYYY-MM&months=12` | Revenue, prior-year revenue and growth per month |
+
+**Error responses:**
+- **422:** invalid input, a future date or month, or today, whose data isn't complete yet. The `detail` says why.
+- **503:** the database is unavailable, or `sales_order_mv` needs refreshing after an import.
+
+No connection details are ever included in an error.
+
+### Definitions used
+
+These follow docs/DATABASE_SPEC.md §4 and §6 and this README.
+- **Revenue:** see `DASHBOARD_REVENUE_METRIC`. The default is item revenue after
+  discounts, excluding shipping, tax and fees. Refunds are not subtracted.
+- **Orders counted:** status `COMPLETED`, `SHIPPED` or `REFUNDED`. Orders with any
+  other status are excluded and listed in `warnings`.
+- **Average selling price:** merchandise after discounts ÷ units.
+- **Median sale price:** median of `order_item.unit_price`.
+- **Revenue growth (YoY):** compared with the same month a year earlier. For a
+  month in progress, it compares the same number of days.
+- **Listings created:** listings whose `listed_at` falls in the month.
+- **Buyers:** identified eBay buyers only. A **repeat** buyer ordered before the
+  month started; a **new** buyer's first stored order is in the month.
+- **Daily customers:** distinct identified buyers. The value is `null`, not 0,
+  where a marketplace's orders have no buyer identity (Amazon, ShopGoodwill).
+  The **total** counts those marketplaces as 0, so it equals the identified
+  (eBay) customers.
+- **Categories:** sales grouped by root category.
+- **Watch list:** subcategories whose revenue fell 15% or more from the previous
+  full month, after selling at least $500 in that month.
+- **Month-over-month changes:**
+  - Rates are compared in percentage points; other figures as a relative change.
+  - Totals (revenue, units, listings, buyers) are not compared while a month is
+    still in progress.
+- **Unavailable (`null`):**
+  - gross and net margin, and category margin: no cost data
+  - customer satisfaction: no agreed rating scale
+
+### Decisions the team still needs to make
+
+- **Revenue definition and refund treatment** (DATABASE_SPEC §9). This sets the
+  default above.
+- **Order status vocabulary** (DATABASE_SPEC §9). This decides which statuses
+  count.
+- **Watch-list "item" level.** Subcategories are used because the schema has no
+  item-type field.
+- **Watch-list thresholds** (15%, $500). These came from the dashboard
+  requirements, not from docs/.
+
+### Tests
+
+```sh
+.venv/bin/python -m unittest discover -s tests -v
+DASHBOARD_TEST_PGDATABASE=goodwill_db_test .venv/bin/python -m unittest discover -s tests -v
+```
+
+The second command also compares API figures with independent SQL on a populated
+database. It only reads.
+
 ## First commit checkpoint
 
 After verifying the endpoint, use a second terminal at the repository root:

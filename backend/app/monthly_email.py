@@ -32,10 +32,11 @@ def monthly_insights(report: DashboardReport) -> list[str]:
         movement = (f"Revenue was {'up' if change > 0 else 'down'} {percent(abs(change))} "
                     f"from the previous calendar month ({money(report.comparison.revenue)}).")
     insights = [movement]
-    if report.marketplaces:
-        highest = max(row.revenue for row in report.marketplaces)
+    known = [row for row in report.marketplaces if row.revenue is not None]
+    if known:
+        highest = max(row.revenue for row in known)
         leaders = [LABELS.get(row.marketplace, row.marketplace)
-                   for row in report.marketplaces if row.revenue == highest]
+                   for row in known if row.revenue == highest]
         if highest > 0:
             # Report ties honestly; Other vendors is a group, not one marketplace.
             insights.append(f"{' and '.join(leaders)} {'led' if len(leaders) == 1 else 'tied for the lead'} "
@@ -76,12 +77,12 @@ def build_email_preview(report: DashboardReport, settings: RecipientSettings) ->
     # These table bars need no remote images or JavaScript. Exact numbers remain
     # readable if a mail client strips the decorative backgrounds.
     rows = []
-    maximum = max((row.revenue for row in report.marketplaces), default=Decimal(0))
+    maximum = max((row.revenue for row in report.marketplaces if row.revenue is not None), default=Decimal(0))
     for row in report.marketplaces:
         label = LABELS.get(row.marketplace, row.marketplace)
         transaction_label = "transaction" if row.transactions == 1 else "transactions"
         lines.append(f"- {label}: {money(row.revenue)}; {row.transactions} {transaction_label}")
-        width = float(max(row.revenue, Decimal(0)) / maximum * 100) if maximum > 0 else 0
+        width = float(max(row.revenue, Decimal(0)) / maximum * 100) if maximum > 0 and row.revenue is not None else 0
         bar = (f'<table role="presentation" width="{width:.2f}%" cellspacing="0" cellpadding="0">'
                '<tr><td height="7" style="background:#397ba6;border-radius:4px;font-size:1px">&nbsp;</td></tr></table>'
                if width > 0 else "")

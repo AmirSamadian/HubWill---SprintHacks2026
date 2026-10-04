@@ -20,32 +20,42 @@ export default function Overview({ report, previous }) {
 // ---------- headline: revenue (with marketplace split), growth, margin, price ----------
 
 function HeadlineRow({ report, previous }) {
-  const vsPrev = `vs. ${formatMonth(previous.month, 'short')}`
+  const comparison = `vs. ${formatMonth(previous.month, 'short')}`
   return (
     <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-[1.7fr_1fr_1fr_1fr]">
-      <RevenueTile report={report} previous={previous} vsPrev={vsPrev} />
+      <RevenueTile report={report} previous={previous} comparison={comparison} />
       <KpiTile
         id="revenueGrowthYoY"
+        label="Revenue Growth (YoY)"
         report={report}
         previous={previous}
-        context={`${formatMonth(addMonths(report.month, -12), 'short')}: ${fmt.currencyCompact(report.financial.revenuePriorYear)}`}
+        comparison={comparison}
+        detail={`${formatMonth(addMonths(report.month, -12), 'short')}: ${fmt.currencyCompact(report.financial.revenuePriorYear)}`}
       />
-      <KpiTile id="netMarginPct" report={report} previous={previous} context={vsPrev} />
+      <KpiTile id="netMarginPct" label="Net Margin" report={report} previous={previous} comparison={comparison} />
       <KpiTile
         id="avgSellingPrice"
+        label="Avg. Selling Price"
         report={report}
         previous={previous}
-        context={`${fmt.number(report.sales.unitsSold)} units · median ${fmt.currencyCents(report.sales.medianSalePrice)}`}
+        comparison={comparison}
+        detail={`${fmt.number(report.sales.unitsSold)} units · median ${fmt.currencyCents(report.sales.medianSalePrice)}`}
       />
     </div>
   )
 }
 
+// Every headline tile uses the same rows — label, value, change, detail — so
+// values and pills line up across the row regardless of label length.
+const LABEL = 'truncate text-sm font-medium'
+const VALUE = 'tabular mt-2 text-3xl font-bold leading-none tracking-tight'
+const CHANGE = 'mt-3 flex h-6 items-center gap-2 text-xs'
+
 // Marketplace segments inside the blue tile use white at stepped opacities;
 // each is labeled by name, so identity never rests on the shade alone.
 const SHADES = [1, 0.62, 0.34, 0.2, 0.12]
 
-function RevenueTile({ report, previous, vsPrev }) {
+function RevenueTile({ report, previous, comparison }) {
   const total = report.channels.reduce((s, c) => s + c.revenue, 0) || 1
   const rows = resolveChannels(report.channels).map((ch, i) => {
     const revenue = report.channels.find((c) => c.id === ch.id)?.revenue ?? 0
@@ -54,14 +64,12 @@ function RevenueTile({ report, previous, vsPrev }) {
 
   return (
     <div className="rounded-lg bg-brand p-5 text-white shadow-sm md:col-span-3 xl:col-span-1">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div className="text-sm font-medium text-white/80">{KPIS.revenue.label}</div>
-        <div className="flex items-center gap-2 text-xs text-white/75">
-          <DeltaPill delta={kpiDelta('revenue', report, previous)} better="up" inverted />
-          <span>{report.isPartial ? 'Month to date' : vsPrev}</span>
-        </div>
+      <div className={`${LABEL} text-white/80`}>{KPIS.revenue.label}</div>
+      <div className={VALUE}>{fmt.currency(kpiValue('revenue', report))}</div>
+      <div className={`${CHANGE} text-white/75`}>
+        <DeltaPill delta={kpiDelta('revenue', report, previous)} better="up" inverted />
+        <span>{report.isPartial ? 'Month to date' : comparison}</span>
       </div>
-      <div className="tabular mt-1 text-4xl font-bold tracking-tight">{fmt.currency(kpiValue('revenue', report))}</div>
 
       <div className="mt-4 flex h-2 gap-0.5 overflow-hidden rounded-full" aria-hidden="true">
         {rows.map((r) => (
@@ -86,16 +94,19 @@ function RevenueTile({ report, previous, vsPrev }) {
   )
 }
 
-function KpiTile({ id, report, previous, context }) {
+function KpiTile({ id, label, report, previous, comparison, detail }) {
   const kpi = KPIS[id]
   return (
-    <Card className="flex flex-col p-5">
-      <div className="flex items-start justify-between gap-2">
-        <span className="text-sm font-medium text-ink-2">{kpi.label}</span>
-        <DeltaPill delta={kpiDelta(id, report, previous)} better={kpi.better} />
+    <Card className="p-5">
+      <div className={`${LABEL} text-ink-2`} title={kpi.label}>
+        {label}
       </div>
-      <div className="tabular mt-1 text-3xl font-bold tracking-tight text-ink">{fmt[kpi.format](kpiValue(id, report))}</div>
-      <div className="mt-1 text-xs text-ink-3">{context}</div>
+      <div className={`${VALUE} text-ink`}>{fmt[kpi.format](kpiValue(id, report))}</div>
+      <div className={`${CHANGE} text-ink-3`}>
+        <DeltaPill delta={kpiDelta(id, report, previous)} better={kpi.better} />
+        <span>{comparison}</span>
+      </div>
+      {detail && <div className="mt-4 border-t border-black/5 pt-3 text-xs text-ink-3">{detail}</div>}
     </Card>
   )
 }

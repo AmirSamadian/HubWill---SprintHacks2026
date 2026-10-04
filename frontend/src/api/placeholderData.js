@@ -25,12 +25,11 @@ export const TEMP_DAILY_CHANNELS = [
 // MONTHLY TAB — selected month
 // ---------------------------------------------------------------------------
 
-// TODO(database): month totals per marketplace. sessions = listing views
-// (used for conversion rate).
+// TODO(database): month totals per marketplace.
 export const TEMP_MONTH_CHANNELS = [
-  { id: 'shopgoodwill', name: 'ShopGoodwill', revenue: 121286.23, orders: 2647, customers: 2422, sessions: 87007 },
-  { id: 'amazon', name: 'Amazon', revenue: 44712.43, orders: 623, customers: 575, sessions: 6587 },
-  { id: 'ebay', name: 'eBay', revenue: 61417.39, orders: 1065, customers: 975, sessions: 23268 },
+  { id: 'shopgoodwill', name: 'ShopGoodwill', revenue: 121286.23, orders: 2647, customers: 2422 },
+  { id: 'amazon', name: 'Amazon', revenue: 44712.43, orders: 623, customers: 575 },
+  { id: 'ebay', name: 'eBay', revenue: 61417.39, orders: 1065, customers: 975 },
 ]
 
 // TODO(database): revenue per marketplace for each day of the month (day 1 first).
@@ -75,6 +74,10 @@ export const TEMP_FINANCIAL = { revenue: 227416.05, revenuePriorYear: 176862.66,
 
 // TODO(database): units sold and the median sale price for the month.
 export const TEMP_SALES = { unitsSold: 5524, medianSalePrice: 26.95 }
+
+// TODO(database): number of listings created in the month (listing.listed_at
+// falls in the month), across all marketplaces.
+export const TEMP_LISTINGS = { created: 5953 }
 
 // TODO(database): sales, cost (fees, shipping, supplies) and units sold per category.
 export const TEMP_CATEGORIES = [
@@ -130,8 +133,8 @@ export const TEMP_ITEMS = [
 ]
 
 // TODO(database): unique buyers split into first-time and repeat; satisfaction
-// rating out of 5; Net Promoter Score (null when not available).
-export const TEMP_CUSTOMERS = { buyers: 3454, repeatBuyers: 1062, newBuyers: 2392, satisfaction: 4.77, nps: 49 }
+// rating out of 5.
+export const TEMP_CUSTOMERS = { buyers: 3454, repeatBuyers: 1062, newBuyers: 2392, satisfaction: 4.77 }
 
 // ---------------------------------------------------------------------------
 // MONTHLY TAB — prior month (for month-over-month deltas)
@@ -140,12 +143,13 @@ export const TEMP_CUSTOMERS = { buyers: 3454, repeatBuyers: 1062, newBuyers: 239
 // TODO(database): the same fields as above, for the month before the selected one.
 export const TEMP_PREVIOUS_MONTH = {
   channels: [
-    { id: 'shopgoodwill', name: 'ShopGoodwill', revenue: 120113.88, orders: 2611, customers: 2356, sessions: 84770 },
-    { id: 'amazon', name: 'Amazon', revenue: 44934.63, orders: 626, customers: 572, sessions: 6623 },
-    { id: 'ebay', name: 'eBay', revenue: 59140.39, orders: 1046, customers: 952, sessions: 22249 },
+    { id: 'shopgoodwill', name: 'ShopGoodwill', revenue: 120113.88, orders: 2611, customers: 2356 },
+    { id: 'amazon', name: 'Amazon', revenue: 44934.63, orders: 626, customers: 572 },
+    { id: 'ebay', name: 'eBay', revenue: 59140.39, orders: 1046, customers: 952 },
   ],
   financial: { revenue: 224188.9, revenuePriorYear: 179347.32, cogs: 88856.46, operatingExpenses: 72629.02 },
   sales: { unitsSold: 5833, medianSalePrice: 25.41 },
+  listings: { created: 6105 },
   items: [
     { name: 'Couch', category: 'Home', revenue: 2140, unitsSold: 10 },
     { name: 'Lamp', category: 'Home', revenue: 1210, unitsSold: 32 },
@@ -176,7 +180,7 @@ export const TEMP_PREVIOUS_MONTH = {
     { name: 'Framed print', category: 'Art', revenue: 1200, unitsSold: 19 },
     { name: 'Golf club set', category: 'Sporting Goods', revenue: 1800, unitsSold: 19 },
   ],
-  customers: { buyers: 3357, repeatBuyers: 1055, newBuyers: 2302, satisfaction: 4.7, nps: 46 },
+  customers: { buyers: 3357, repeatBuyers: 1055, newBuyers: 2302, satisfaction: 4.7 },
 }
 
 // ---------------------------------------------------------------------------

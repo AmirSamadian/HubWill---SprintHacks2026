@@ -103,3 +103,54 @@ git add backend
 git diff --cached
 git commit -m "feat: add dashboard report contracts and mock data"
 ```
+
+## Milestone 3: monthly email preview and recipient settings
+
+Update dependencies, then restart the server if needed:
+
+```powershell
+# Run from backend.
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+- `GET /api/email/recipients`: read the saved recipient list (empty initially).
+- `PUT /api/email/recipients`: validate and replace the saved list.
+- `GET /api/email/monthly/preview?date=2026-09-01`: JSON subject, recipients,
+  plain text and HTML content.
+- `GET /api/email/monthly/preview/html?date=2026-09-01`: view the HTML email in a browser.
+
+Use `/docs` and the recipient PUT endpoint's **Try it out** action with:
+
+```json
+{"recipients": "team@example.com, judge@example.org"}
+```
+
+An array is also accepted:
+
+```json
+{"recipients": ["team@example.com", "judge@example.org"]}
+```
+
+Comma, semicolon and newline separators are supported. Duplicate addresses are
+removed case-insensitively. Up to 50 input addresses are accepted. Addresses are
+syntax-validated; this does not confirm that a mailbox exists. Any invalid address
+rejects the update with HTTP 422, preserving the previous list. An empty array
+clears recipients. These endpoints do not send email or start a scheduler.
+
+Settings are stored in `backend/local-state/recipients.json`, excluded by the
+root `.gitignore`. `DASHBOARD_STATE_DIR` may override the local state directory
+for testing. Do not manually commit recipient settings. Storage failures return
+HTTP 500 instead of pretending the settings were saved.
+
+The preview contains revenue, previous-month change, transactions, units, average
+selling price, the four marketplace rows, eBay-only returning buyer metrics, and
+unavailable-metric explanations. Mock data is visibly labeled. Sender verification,
+delivery, and the first-of-month schedule will be implemented in the next increment.
+
+After tests pass, commit from the repository root on `BackEnd`:
+
+```powershell
+git add .gitignore backend
+git diff --cached
+git commit -m "feat: add monthly email preview and recipient settings"
+```

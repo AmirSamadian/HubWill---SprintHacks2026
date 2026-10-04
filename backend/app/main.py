@@ -1,12 +1,14 @@
 """Application entry point. Run from backend with: python -m uvicorn app.main:app."""
 
 import datetime as dt
+import smtplib
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
-from .email_models import MonthlyEmailPreview, RecipientSettings
+from .demo_delivery import send_to_demo_server
+from .email_models import DemoDeliveryResult, MonthlyEmailPreview, RecipientSettings
 from .models import DashboardReport, Period
 from .monthly_email import build_email_preview
 from .recipient_store import recipient_store
@@ -73,3 +75,18 @@ def monthly_preview(date: dt.date = Query(description="A date within the month t
 def monthly_preview_html(date: dt.date = Query(description="A date within the month to preview.")) -> HTMLResponse:
     # Browser-friendly email preview, rendered from the same content as the JSON API.
     return HTMLResponse(content=monthly_preview(date).html_body)
+
+
+@app.post("/api/email/monthly/send-demo", response_model=DemoDeliveryResult, tags=["Monthly email"])
+def send_monthly_demo(date: dt.date = Query(description="A date within the month to capture locally.")) -> DemoDeliveryResult:
+    preview = monthly_preview(date)
+    if not preview.recipients:
+        raise HTTPException(status_code=400, detail="Save at least one recipient first.")
+    try:
+        send_to_demo_server(preview)
+    except (OSError, smtplib.SMTPException) as error:
+        raise HTTPException(
+            status_code=503, detail="Local SMTP capture failed. Start python -m app.demo_smtp and retry.",
+        ) from error
+    # Repeated manual demo requests produce separate local captures by design.
+    return DemoDeliveryResult(recipients=preview.recipients, subject="[LOCAL CAPTURE] " + preview.subject)

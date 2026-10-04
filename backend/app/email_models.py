@@ -38,3 +38,10 @@ class MonthlyEmailPreview(BaseModel):
     data_mode: str
     delivery_status: str = "preview_only"
     notice: str = "This endpoint previews a report; no email has been sent."
+
+
+class DemoDeliveryResult(BaseModel):
+    delivery_status: str = "captured_locally"
+    recipients: list[EmailStr]
+    subject: str
+    notice: str = "Email captured by the local dummy server; no real inbox delivery."

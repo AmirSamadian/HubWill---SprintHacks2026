@@ -154,3 +154,45 @@ git add .gitignore backend
 git diff --cached
 git commit -m "feat: add monthly email preview and recipient settings"
 ```
+
+## Milestone 4: account-free local SMTP demo
+
+No sender account, password, API key, or domain is required. This mode captures
+mail locally and does **not** deliver it to real inboxes. Sender placeholder:
+`reports@example.test`. Captures are `.eml` files under
+`backend/local-state/demo-mail/`, excluded from Git.
+
+1. From `backend`, update dependencies:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+   ```
+
+2. In one terminal at `backend`, start the dummy server:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m app.demo_smtp
+   ```
+
+3. In another terminal at `backend`, start the API:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
+   ```
+
+4. At http://127.0.0.1:8000/docs, configure recipients if necessary, then execute
+   `POST /api/email/monthly/send-demo` with `date` set to `2026-09-01`.
+5. Expect `delivery_status: captured_locally`. The SMTP terminal prints the saved
+   `.eml` path. Open the file in an email client or text editor to inspect it.
+
+Both processes stop with Ctrl+C. Missing recipients return HTTP 400; an unavailable
+capture server returns HTTP 503. Each manual demo request creates another capture.
+The first-of-month scheduler is a separate next increment, not yet implemented.
+
+After verification, commit from the repository root on `BackEnd`:
+
+```powershell
+git add backend
+git diff --cached
+git commit -m "feat: add account-free local SMTP capture demo"
+```

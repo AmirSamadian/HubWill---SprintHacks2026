@@ -8,10 +8,11 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from .demo_delivery import send_to_demo_server
+from .delivery_history import DeliveryHistory
 from .email_models import DemoDeliveryResult, MonthlyEmailPreview, RecipientSettings
 from .models import DashboardReport, Period
 from .monthly_email import build_email_preview
-from .recipient_store import recipient_store
+from .recipient_store import recipient_store, state_directory
 from .reports import build_report
 from .repository import repository
 
@@ -90,3 +91,11 @@ def send_monthly_demo(date: dt.date = Query(description="A date within the month
         ) from error
     # Repeated manual demo requests produce separate local captures by design.
     return DemoDeliveryResult(recipients=preview.recipients, subject="[LOCAL CAPTURE] " + preview.subject)
+
+
+@app.get("/api/email/schedule/history", tags=["Monthly email"])
+def scheduled_delivery_history() -> list[dict[str, str]]:
+    try:
+        return DeliveryHistory(state_directory).entries()
+    except Exception as error:
+        raise HTTPException(status_code=500, detail="Scheduled email history could not be read.") from error

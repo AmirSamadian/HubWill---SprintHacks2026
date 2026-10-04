@@ -196,3 +196,64 @@ git add backend
 git diff --cached
 git commit -m "feat: add account-free local SMTP capture demo"
 ```
+
+## Milestone 5: first-of-month local scheduler
+
+The scheduler is a separate process, so API reloads do not start duplicate workers.
+It checks once per minute and captures the previous calendar month's email at or
+after **8:00 a.m. America/New_York on the first**. If started late, it checks the
+latest completed month immediately; it does not backfill every older month.
+Windows timezone support is supplied by the new `tzdata` dependency.
+
+1. Update dependencies from `backend`:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+   ```
+
+2. Keep the dummy SMTP server running and save at least one recipient through the API.
+3. To demonstrate one check using the real current date:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m app.scheduler --once
+   ```
+
+   On October 4, 2026 this checks September 2026. First success reports
+   `captured_locally`. Repeating the command returns the saved status without
+   producing another scheduled email.
+
+4. For continuous checking, run in its own terminal:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m app.scheduler
+   ```
+
+   Stop with Ctrl+C. The computer, scheduler, and dummy SMTP server must remain
+   running for captures to occur on time. If the computer is off, the next scheduler
+   launch checks the latest completed month.
+
+Read statuses at `GET /api/email/schedule/history`, also available under `/docs`.
+An empty recipient list produces `awaiting_recipients`. Connection refusal produces
+`retryable`, which is retried at the next check. Other SMTP interruptions produce
+`needs_review` and are not resent automatically. An interrupted process may leave
+`in_progress`; inspect local captures before manually correcting its history record.
+This conservative behavior avoids blindly retrying an uncertain delivery.
+
+Job history is a small local SQLite file under the ignored `local-state` directory.
+PostgreSQL remains the future source of business data. Manual `send-demo` requests
+are independent of scheduled history and can produce additional captures.
+Everything is still local capture; no real inbox delivery is implemented.
+
+Run all tests from `backend`:
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+After verification, commit from the repository root on `BackEnd`:
+
+```powershell
+git add backend
+git diff --cached
+git commit -m "feat: schedule monthly report capture with delivery history"
+```

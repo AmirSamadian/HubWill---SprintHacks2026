@@ -1,0 +1,3 @@
+-r requirements.txt
+# FastAPI's in-process test client (no mail service required).
+httpx>=0.27,<1

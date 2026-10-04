@@ -7,3 +7,6 @@ email-validator>=2.2,<3.0
 aiosmtpd>=1.4.6,<2.0
 # Windows may not provide an IANA timezone database for zoneinfo.
 tzdata>=2024.1
+# PostgreSQL driver with prebuilt libraries; root .env loading for local setup.
+psycopg[binary]>=3.2,<4
+python-dotenv>=1.0,<2

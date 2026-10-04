@@ -1,0 +1,55 @@
+name,parent_name
+Home,
+Clothing,
+Electronics,
+Jewelry & Gemstones,
+Collectibles,
+Books,
+Art,
+Toys & Games,
+Video Games,
+Cameras & Photo,
+Musical Instruments,
+Sporting Goods,
+Furniture,Home
+Lamps & Lighting,Home
+Kitchen & Dining,Home
+Home Decor,Home
+Rugs & Textiles,Home
+Men's Clothing,Clothing
+Women's Clothing,Clothing
+Shoes,Clothing
+Handbags & Accessories,Clothing
+Vintage Apparel,Clothing
+Computers & Laptops,Electronics
+Audio & Headphones,Electronics
+Phones & Tablets,Electronics
+Fine Jewelry,Jewelry & Gemstones
+Sterling Silver,Jewelry & Gemstones
+Watches,Jewelry & Gemstones
+Costume Jewelry,Jewelry & Gemstones
+Trading Cards,Collectibles
+Vinyl Records,Collectibles
+Figurines,Collectibles
+Coins & Currency,Collectibles
+Hardcover Fiction,Books
+Textbooks,Books
+Children's Books,Books
+Vintage & Rare Books,Books
+Paintings,Art
+Prints & Posters,Art
+Pottery & Glass,Art
+LEGO,Toys & Games
+Board Games,Toys & Games
+Dolls & Action Figures,Toys & Games
+Consoles,Video Games
+Games,Video Games
+Film Cameras,Cameras & Photo
+Digital Cameras,Cameras & Photo
+Lenses,Cameras & Photo
+Guitars,Musical Instruments
+Keyboards,Musical Instruments
+Brass & Woodwind,Musical Instruments
+Golf,Sporting Goods
+Fitness,Sporting Goods
+Outdoor & Camping,Sporting Goods

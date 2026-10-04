@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Ingestion archive: untouched copies of ingested source files (see ingestion/README.md)
+ingestion/archive/
